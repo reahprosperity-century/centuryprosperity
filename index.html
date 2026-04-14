@@ -2199,34 +2199,8 @@ function startFirebaseListeners() {
 }
 
 // ─── FIREBASE CONFIG (Century Prosperity RecruitTrack) ────────────
-const _FB_CONFIG = {
-  apiKey:            "AIzaSyBAiMTyozyoleX5I0Jk2yrWmpjWhR3FDug",
-  authDomain:        "recruittrack-ee528.firebaseapp.com",
-  databaseURL:       "https://recruittrack-ee528-default-rtdb.firebaseio.com",
-  projectId:         "recruittrack-ee528",
-  storageBucket:     "recruittrack-ee528.firebasestorage.app",
-  messagingSenderId: "168795409416",
-  appId:             "1:168795409416:web:893cb9cb7f6a66d11a55bd"
-};
-
-// Auto-connect on load — uses built-in config, falls back to saved config
-(function autoConnect() {
-  const config = _FB_CONFIG;
-  // Also save to localStorage so the setup modal shows it
-  localStorage.setItem('rt_fb_config', JSON.stringify(config));
-  try {
-    if (firebase.apps.length) {
-      firebase.apps.forEach(a => { try { a.delete(); } catch(e) {} });
-    }
-    _fbApp = firebase.initializeApp(config);
-    _fbDb  = firebase.database(_fbApp);
-    setConnBadge('syncing', 'Connecting…');
-    startFirebaseListeners();
-  } catch(e) {
-    setConnBadge('error', 'Config Error');
-    console.warn('Firebase init error:', e);
-  }
-})();
+// Firebase auto-connect disabled — app runs on local storage only.
+// To re-enable cloud sync, click the ☁️ button in the header and enter Firebase config.
 
 // ─── DATA ─────────────────────────────────────────────────────────
 let applicants = JSON.parse(localStorage.getItem('rt_applicants') || '[]');
