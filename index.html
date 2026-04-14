@@ -783,7 +783,7 @@
   <div class="header-right">
     <span class="header-date" id="headerDate"></span>
     <button class="logout-btn" onclick="doLogout()" title="Sign out">⏻ Logout</button>
-    <button id="connBadge" class="conn-badge local" onclick="showFirebaseSetup()" title="Cloud sync status — click to configure">
+    <button id="connBadge" class="conn-badge local" onclick="showFirebaseSetup()" title="Cloud sync status — click to configure" style="display:none">
       <span class="conn-dot" style="width:7px;height:7px;border-radius:50%;flex-shrink:0;"></span>
       <span class="conn-label" id="connLabel">Local</span>
     </button>
@@ -832,7 +832,7 @@
   </div>
 
   <div class="sidebar-bottom">
-    <div class="storage-note" id="storageNote" style="font-size:0.72rem;color:var(--gray-400);text-align:center;line-height:1.4">☁️ Cloud sync active<br><strong style="color:var(--primary)">Century Prosperity</strong></div>
+    <div class="storage-note" id="storageNote" style="font-size:0.72rem;color:var(--gray-400);text-align:center;line-height:1.4;display:none">☁️ Cloud sync active<br><strong style="color:var(--primary)">Century Prosperity</strong></div>
   </div>
 </aside>
 
@@ -2046,9 +2046,14 @@ let _syncDebounce = null;
 function setConnBadge(state, label) {
   const badge = document.getElementById('connBadge');
   const lbl   = document.getElementById('connLabel');
+  const note  = document.getElementById('storageNote');
   if (!badge) return;
   badge.className = 'conn-badge ' + state;
   if (lbl) lbl.textContent = label;
+  // Only show the sync badge/note when Firebase is configured
+  const hasFbConfig = !!localStorage.getItem('rt_fb_config');
+  badge.style.display = hasFbConfig ? '' : 'none';
+  if (note) note.style.display = hasFbConfig ? '' : 'none';
 }
 
 function showFirebaseSetup() {
