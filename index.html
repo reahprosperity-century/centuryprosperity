@@ -951,6 +951,12 @@
       <div class="page-title">Dashboard</div>
       <div class="page-subtitle">Overview of your recruitment pipeline — Century Prosperity</div>
     </div>
+    <!-- Quick Add Button -->
+    <div style="margin-bottom:18px">
+      <button onclick="openModal()" style="background:linear-gradient(135deg,#166534,#16A34A);color:#fff;border:none;border-radius:10px;padding:11px 22px;font-size:0.88rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:0 3px 12px rgba(22,101,52,0.3);transition:all 0.2s;font-family:inherit" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 5px 18px rgba(22,101,52,0.4)'" onmouseout="this.style.transform='';this.style.boxShadow='0 3px 12px rgba(22,101,52,0.3)'">
+        + Add New Applicant
+      </button>
+    </div>
     <div class="stats-grid" id="statsGrid"></div>
     <div class="charts-row">
       <div class="chart-card">
@@ -1112,7 +1118,7 @@
         </div>
         <div class="form-group">
           <label>Current Status <span class="req">*</span></label>
-          <select id="f_status" onchange="toggleDmdField('f_dmd_group')">
+          <select id="f_status" onchange="onFormStatusChange('f')">
             <option value="send_appointments">📨 Send Appointments</option>
             <option value="initial_interview">🗣️ For Initial Interview</option>
             <option value="mcl_interview">🔍 MCL Interview</option>
@@ -1123,8 +1129,9 @@
             <option value="endorsed">✅ Endorsed to Team</option>
           </select>
         </div>
+        <!-- DMD/MM — shown for SOM Interview, CARE/MCL Training, Cancelled, Endorsed -->
         <div class="form-group" id="f_dmd_group" style="display:none">
-          <label>Endorsed to (DMD / MM) <span class="req">*</span></label>
+          <label>DMD / MM (Leader) <span class="req">*</span></label>
           <select id="f_endorsed_dmd">
             <option value="">-- Select DMD/MM --</option>
             <option value="Dexter Soriano">Dexter Soriano – South Ops (DMD)</option>
@@ -1132,6 +1139,25 @@
             <option value="Brian Anthony Esguerra">Brian Anthony Esguerra – North Ops (DMD)</option>
             <option value="Joan Marie Crizza Esguerra">Joan Marie Crizza Esguerra – Metro Manila Ops (DMD)</option>
             <option value="Nelvin Joseph Adriatico">Nelvin Joseph Adriatico – International Ops (MM)</option>
+          </select>
+        </div>
+        <!-- Contracted Status — shown for SOM Interview, CARE/MCL Training, Endorsed -->
+        <div class="form-group" id="f_contracted_group" style="display:none">
+          <label>Contracted Status <span class="req">*</span></label>
+          <select id="f_contracted_status">
+            <option value="">-- Select contracted status --</option>
+            <option value="contracted_with_subsidy">Contracted — WITH Subsidy (Current + Back End)</option>
+            <option value="contracted_no_subsidy">Contracted — WITHOUT Subsidy (Current only)</option>
+            <option value="not_contracted">Not Yet Contracted (counts toward Projected)</option>
+          </select>
+          <div style="font-size:0.72rem;color:var(--gray-400);margin-top:4px">Current = all contracted (w/ or w/o subsidy) · Back End = with subsidy only · Projected = Current + Back End + SOM/Training (not contracted)</div>
+        </div>
+        <!-- Is New Agent badge -->
+        <div class="form-group" style="align-items:center;flex-direction:row;gap:12px">
+          <label style="margin-bottom:0;white-space:nowrap">Mark as NEW Agent in Org Chart?</label>
+          <select id="f_is_new_agent" style="width:auto;min-width:120px">
+            <option value="no">No</option>
+            <option value="yes">Yes — Show NEW badge</option>
           </select>
         </div>
         <div class="form-group">
@@ -1151,12 +1177,20 @@
           <input type="datetime-local" id="f_date_som" />
         </div>
         <div class="form-group">
-          <label>📚 CARE Training Date &amp; Time</label>
+          <label>📚 CARE Training — Start Date &amp; Time</label>
           <input type="datetime-local" id="f_date_care" />
         </div>
         <div class="form-group">
-          <label>🎓 MCL Training Date &amp; Time</label>
+          <label>📚 CARE Training — End Date &amp; Time</label>
+          <input type="datetime-local" id="f_date_care_end" />
+        </div>
+        <div class="form-group">
+          <label>🎓 MCL Training — Start Date &amp; Time</label>
           <input type="datetime-local" id="f_date_mcl_training" />
+        </div>
+        <div class="form-group">
+          <label>🎓 MCL Training — End Date &amp; Time</label>
+          <input type="datetime-local" id="f_date_mcl_training_end" />
         </div>
         <div class="form-group">
           <label>Project / Property</label>
@@ -2039,7 +2073,7 @@
         </div>
         <div class="form-group">
           <label>Status</label>
-          <select id="m_status" onchange="toggleDmdField('m_dmd_group')">
+          <select id="m_status" onchange="onFormStatusChange('m')">
             <option value="send_appointments">📨 Send Appointments</option>
             <option value="initial_interview">🗣️ For Initial Interview</option>
             <option value="mcl_interview">🔍 MCL Interview</option>
@@ -2050,8 +2084,9 @@
             <option value="endorsed">✅ Endorsed to Team</option>
           </select>
         </div>
+        <!-- DMD/MM — shown for SOM Interview, CARE/MCL Training, Cancelled, Endorsed -->
         <div class="form-group full" id="m_dmd_group" style="display:none">
-          <label>Endorsed to (DMD / MM) <span class="req">*</span></label>
+          <label>DMD / MM (Leader) <span class="req">*</span></label>
           <select id="m_endorsed_dmd">
             <option value="">-- Select DMD/MM --</option>
             <option value="Dexter Soriano">Dexter Soriano – South Ops (DMD)</option>
@@ -2059,6 +2094,25 @@
             <option value="Brian Anthony Esguerra">Brian Anthony Esguerra – North Ops (DMD)</option>
             <option value="Joan Marie Crizza Esguerra">Joan Marie Crizza Esguerra – Metro Manila Ops (DMD)</option>
             <option value="Nelvin Joseph Adriatico">Nelvin Joseph Adriatico – International Ops (MM)</option>
+          </select>
+        </div>
+        <!-- Contracted Status -->
+        <div class="form-group full" id="m_contracted_group" style="display:none">
+          <label>Contracted Status <span class="req">*</span></label>
+          <select id="m_contracted_status">
+            <option value="">-- Select contracted status --</option>
+            <option value="contracted_with_subsidy">Contracted — WITH Subsidy (Current + Back End)</option>
+            <option value="contracted_no_subsidy">Contracted — WITHOUT Subsidy (Current only)</option>
+            <option value="not_contracted">Not Yet Contracted (counts toward Projected)</option>
+          </select>
+          <div style="font-size:0.72rem;color:var(--gray-400);margin-top:4px">Current = all contracted (w/ or w/o subsidy) · Back End = with subsidy only · Projected = Current + Back End + SOM/Training (not contracted)</div>
+        </div>
+        <!-- Is New Agent -->
+        <div class="form-group full" style="align-items:center;flex-direction:row;gap:12px">
+          <label style="margin-bottom:0;white-space:nowrap">Mark as NEW Agent in Org Chart?</label>
+          <select id="m_is_new_agent" style="width:auto;min-width:120px">
+            <option value="no">No</option>
+            <option value="yes">Yes — Show NEW badge</option>
           </select>
         </div>
         <div class="form-group">
@@ -2078,12 +2132,20 @@
           <input type="datetime-local" id="m_date_som" />
         </div>
         <div class="form-group">
-          <label>📚 CARE Training Date &amp; Time</label>
+          <label>📚 CARE Training — Start Date &amp; Time</label>
           <input type="datetime-local" id="m_date_care" />
         </div>
         <div class="form-group">
-          <label>🎓 MCL Training Date &amp; Time</label>
+          <label>📚 CARE Training — End Date &amp; Time</label>
+          <input type="datetime-local" id="m_date_care_end" />
+        </div>
+        <div class="form-group">
+          <label>🎓 MCL Training — Start Date &amp; Time</label>
           <input type="datetime-local" id="m_date_mcl_training" />
+        </div>
+        <div class="form-group">
+          <label>🎓 MCL Training — End Date &amp; Time</label>
+          <input type="datetime-local" id="m_date_mcl_training_end" />
         </div>
         <div class="form-group">
           <label>Project / Property</label>
@@ -2544,13 +2606,24 @@ function renderDashboard() {
       }, 0) / endorsedWithDates.length)
     : null;
 
-  // Agent sub-metrics (from applicant data)
-  const endorsedAll = liveApps().filter(a => a.status === 'endorsed');
-  const totalCurrent = endorsedAll.length; // Contracted, with or without subsidy
-  const totalBackEnd = endorsedAll.filter(a => a.hasSubsidy === true).length; // Contracted WITH subsidy
-  const totalProjected = liveApps().filter(a =>
-    ['endorsed','som_interview','care_training','mcl_training'].includes(a.status)
-  ).length; // Contracted + SOM + Training
+  // Agent sub-metrics (from contractedStatus field)
+  const allLive = liveApps();
+  // CURRENT = all contracted (with OR without subsidy)
+  const totalCurrent = allLive.filter(a =>
+    a.contractedStatus === 'contracted_with_subsidy' || a.contractedStatus === 'contracted_no_subsidy'
+  ).length;
+  // BACK END = contracted WITH subsidy only
+  const totalBackEnd = allLive.filter(a => a.contractedStatus === 'contracted_with_subsidy').length;
+  // PROJECTED = Current (all contracted) + SOM/Training who are "Not Yet Contracted"
+  // Formula: Current + Back End + SOM/Training(not_contracted) = total projected pool
+  const totalProjected = allLive.filter(a =>
+    a.contractedStatus === 'contracted_with_subsidy' ||
+    a.contractedStatus === 'contracted_no_subsidy' ||
+    (
+      ['som_interview','care_training','mcl_training'].includes(a.status) &&
+      (a.contractedStatus === 'not_contracted' || !a.contractedStatus)
+    )
+  ).length;
 
   // Read live values from Org Chart DOM (baseline static staff + dynamic applicants)
   const orgVal = id => document.getElementById(id)?.textContent?.trim() || '—';
@@ -2788,7 +2861,7 @@ function agentCard(current, backEnd, projected) {
       <div style="flex:1;min-width:80px;background:#F0FDF4;border-radius:8px;padding:7px 10px;border:1px solid #DCFCE7">
         <div style="font-size:0.65rem;font-weight:700;color:#15803D;text-transform:uppercase;letter-spacing:0.05em">Projected</div>
         <div style="font-size:1.1rem;font-weight:800;color:#166534;line-height:1.2">${projected}</div>
-        <div style="font-size:0.6rem;color:#6B7280">Contracted + SOM/Training</div>
+        <div style="font-size:0.6rem;color:#6B7280">Current + SOM/Training (not contracted)</div>
       </div>
     </div>
     <div style="position:absolute;bottom:8px;right:12px;font-size:0.65rem;color:var(--gray-400);font-weight:500;letter-spacing:0.02em">View details →</div>
@@ -2801,7 +2874,10 @@ function showAgentDetail() {
   const withSubsidy = endorsed.filter(a => a.hasSubsidy === true);
   const withoutSubsidy = endorsed.filter(a => !a.hasSubsidy);
   const projected = live.filter(a => ['endorsed','som_interview','care_training','mcl_training'].includes(a.status));
-  const inTraining = live.filter(a => ['som_interview','care_training','mcl_training'].includes(a.status));
+  const inTraining = live.filter(a =>
+    ['som_interview','care_training','mcl_training'].includes(a.status) &&
+    (a.contractedStatus === 'not_contracted' || !a.contractedStatus)
+  );
 
   const sectionHtml = (title, color, people) => {
     if (!people.length) return `<div style="padding:10px 20px 4px;font-size:0.74rem;font-weight:700;color:${color};text-transform:uppercase;letter-spacing:0.05em;border-top:1px solid var(--gray-100)">${title} (0)</div>`;
@@ -2832,7 +2908,7 @@ function showAgentDetail() {
   </div>`
   + sectionHtml('Current — With Subsidy (Back End)', '#15803D', withSubsidy)
   + sectionHtml('Current — No Subsidy', '#6B7280', withoutSubsidy)
-  + sectionHtml('In Pipeline (SOM / Training)', '#F97316', inTraining);
+  + sectionHtml('SOM / Training — Not Yet Contracted (Projected)', '#F97316', inTraining);
 
   openDetailModal('Total Agents Breakdown', body);
 }
@@ -3065,11 +3141,22 @@ function renderFilteredTable(status, searchId, tableId) {
   `).join('');
 }
 
-// ─── DMD FIELD TOGGLE ─────────────────────────────────────────────
+// ─── FORM STATUS CHANGE HANDLER ───────────────────────────────────
+const DMD_REQUIRED_STATUSES = ['som_interview','care_training','mcl_training','cancelled','endorsed'];
+const CONTRACTED_REQUIRED_STATUSES = ['som_interview','care_training','mcl_training','endorsed'];
+
+function onFormStatusChange(prefix) {
+  const status = document.getElementById(prefix + '_status').value;
+  const dmdGroup = document.getElementById(prefix + '_dmd_group');
+  const contractedGroup = document.getElementById(prefix + '_contracted_group');
+  if (dmdGroup) dmdGroup.style.display = DMD_REQUIRED_STATUSES.includes(status) ? 'flex' : 'none';
+  if (contractedGroup) contractedGroup.style.display = CONTRACTED_REQUIRED_STATUSES.includes(status) ? 'flex' : 'none';
+}
+
+// Legacy alias — keep for safety
 function toggleDmdField(groupId) {
-  const statusId = groupId === 'f_dmd_group' ? 'f_status' : 'm_status';
-  const group = document.getElementById(groupId);
-  if (group) group.style.display = document.getElementById(statusId).value === 'endorsed' ? 'flex' : 'none';
+  const prefix = groupId.startsWith('f_') ? 'f' : 'm';
+  onFormStatusChange(prefix);
 }
 
 // ─── ADD APPLICANT ────────────────────────────────────────────────
@@ -3077,10 +3164,15 @@ function addApplicant() {
   const name = document.getElementById('f_name').value.trim();
   const position = document.getElementById('f_position').value.trim();
   const status = document.getElementById('f_status').value;
+  const dmd = document.getElementById('f_endorsed_dmd').value;
+  const contracted = document.getElementById('f_contracted_status').value;
   if (!name) { toast('Please enter the applicant name.', 'error'); return; }
   if (!position) { toast('Please enter the position applied for.', 'error'); return; }
-  if (status === 'endorsed' && !document.getElementById('f_endorsed_dmd').value) {
-    toast('Please select which Deputy Marketing Director this applicant is endorsed to.', 'error'); return;
+  if (DMD_REQUIRED_STATUSES.includes(status) && !dmd) {
+    toast('Please select the DMD/MM (Leader) for this stage.', 'error'); return;
+  }
+  if (CONTRACTED_REQUIRED_STATUSES.includes(status) && !contracted) {
+    toast('Please select the Contracted Status for this stage.', 'error'); return;
   }
   const a = {
     id: uid(), name, position,
@@ -3088,14 +3180,19 @@ function addApplicant() {
     phone: document.getElementById('f_phone').value.trim(),
     type: document.getElementById('f_type').value,
     status,
-    endorsedDmd: status === 'endorsed' ? document.getElementById('f_endorsed_dmd').value : '',
+    endorsedDmd: DMD_REQUIRED_STATUSES.includes(status) ? dmd : '',
+    contractedStatus: CONTRACTED_REQUIRED_STATUSES.includes(status) ? contracted : '',
+    hasSubsidy: contracted === 'contracted_with_subsidy',
+    isNewAgent: document.getElementById('f_is_new_agent').value === 'yes',
     project: document.getElementById('f_project').value,
     dateApplied: document.getElementById('f_date').value,
     dateInterview: document.getElementById('f_interview_date').value,
     dateMCL: document.getElementById('f_date_mcl').value,
     dateSOM: document.getElementById('f_date_som').value,
     dateCARE: document.getElementById('f_date_care').value,
+    dateCARE_end: document.getElementById('f_date_care_end').value,
     dateMCLTraining: document.getElementById('f_date_mcl_training').value,
+    dateMCLTraining_end: document.getElementById('f_date_mcl_training_end').value,
     source: document.getElementById('f_source').value,
     notes: document.getElementById('f_notes').value.trim(),
     lastUpdated: new Date().toISOString()
@@ -3103,7 +3200,7 @@ function addApplicant() {
   autoSetInterviewDate(a);
   applicants.push(a);
   save();
-  if (a.status === 'endorsed') autoAddToOrgChart(a);
+  if (DMD_REQUIRED_STATUSES.includes(a.status)) autoAddToOrgChart(a);
   clearForm();
   toast(`✅ ${name} added to the pipeline!`, 'success');
 }
@@ -3118,9 +3215,14 @@ function clearForm() {
   document.getElementById('f_date_mcl').value = '';
   document.getElementById('f_date_som').value = '';
   document.getElementById('f_date_care').value = '';
+  document.getElementById('f_date_care_end').value = '';
   document.getElementById('f_date_mcl_training').value = '';
+  document.getElementById('f_date_mcl_training_end').value = '';
   document.getElementById('f_endorsed_dmd').value = '';
+  document.getElementById('f_contracted_status').value = '';
+  document.getElementById('f_is_new_agent').value = 'no';
   document.getElementById('f_dmd_group').style.display = 'none';
+  document.getElementById('f_contracted_group').style.display = 'none';
   document.getElementById('f_project').value = '';
 }
 
@@ -3144,12 +3246,16 @@ function openModal(id = null) {
     document.getElementById('m_date_mcl').value = a.dateMCL || '';
     document.getElementById('m_date_som').value = a.dateSOM || '';
     document.getElementById('m_date_care').value = a.dateCARE || '';
+    document.getElementById('m_date_care_end').value = a.dateCARE_end || '';
     document.getElementById('m_date_mcl_training').value = a.dateMCLTraining || '';
+    document.getElementById('m_date_mcl_training_end').value = a.dateMCLTraining_end || '';
     document.getElementById('m_source').value = a.source || '';
     document.getElementById('m_notes').value = a.notes || '';
     document.getElementById('m_endorsed_dmd').value = a.endorsedDmd || '';
-    document.getElementById('m_dmd_group').style.display = a.status === 'endorsed' ? 'flex' : 'none';
+    document.getElementById('m_contracted_status').value = a.contractedStatus || '';
+    document.getElementById('m_is_new_agent').value = a.isNewAgent ? 'yes' : 'no';
     document.getElementById('m_project').value = a.project || '';
+    onFormStatusChange('m');
   } else {
     ['m_name','m_email','m_phone','m_position','m_notes'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('m_type').value = 'new_applicant';
@@ -3160,9 +3266,14 @@ function openModal(id = null) {
     document.getElementById('m_date_mcl').value = '';
     document.getElementById('m_date_som').value = '';
     document.getElementById('m_date_care').value = '';
+    document.getElementById('m_date_care_end').value = '';
     document.getElementById('m_date_mcl_training').value = '';
+    document.getElementById('m_date_mcl_training_end').value = '';
     document.getElementById('m_endorsed_dmd').value = '';
+    document.getElementById('m_contracted_status').value = '';
+    document.getElementById('m_is_new_agent').value = 'no';
     document.getElementById('m_dmd_group').style.display = 'none';
+    document.getElementById('m_contracted_group').style.display = 'none';
     document.getElementById('m_project').value = '';
   }
   overlay.classList.add('open');
@@ -3177,23 +3288,30 @@ function saveModal() {
   const position = document.getElementById('m_position').value.trim();
   const mStatus = document.getElementById('m_status').value;
   const mDmd = document.getElementById('m_endorsed_dmd').value;
+  const mContracted = document.getElementById('m_contracted_status').value;
   if (!name) { toast('Please enter the applicant name.', 'error'); return; }
   if (!position) { toast('Please enter the position.', 'error'); return; }
-  if (mStatus === 'endorsed' && !mDmd) { toast('Please select the DMD this applicant is endorsed to.', 'error'); return; }
+  if (DMD_REQUIRED_STATUSES.includes(mStatus) && !mDmd) { toast('Please select the DMD/MM (Leader) for this stage.', 'error'); return; }
+  if (CONTRACTED_REQUIRED_STATUSES.includes(mStatus) && !mContracted) { toast('Please select the Contracted Status for this stage.', 'error'); return; }
   const fields = {
     name, position,
     email: document.getElementById('m_email').value.trim(),
     phone: document.getElementById('m_phone').value.trim(),
     type: document.getElementById('m_type').value,
     status: mStatus,
-    endorsedDmd: mStatus === 'endorsed' ? mDmd : '',
+    endorsedDmd: DMD_REQUIRED_STATUSES.includes(mStatus) ? mDmd : '',
+    contractedStatus: CONTRACTED_REQUIRED_STATUSES.includes(mStatus) ? mContracted : '',
+    hasSubsidy: mContracted === 'contracted_with_subsidy',
+    isNewAgent: document.getElementById('m_is_new_agent').value === 'yes',
     project: document.getElementById('m_project').value,
     dateApplied: document.getElementById('m_date').value,
     dateInterview: document.getElementById('m_interview_date').value,
     dateMCL: document.getElementById('m_date_mcl').value,
     dateSOM: document.getElementById('m_date_som').value,
     dateCARE: document.getElementById('m_date_care').value,
+    dateCARE_end: document.getElementById('m_date_care_end').value,
     dateMCLTraining: document.getElementById('m_date_mcl_training').value,
+    dateMCLTraining_end: document.getElementById('m_date_mcl_training_end').value,
     source: document.getElementById('m_source').value,
     notes: document.getElementById('m_notes').value.trim(),
     lastUpdated: new Date().toISOString()
@@ -3218,8 +3336,8 @@ function saveModal() {
     toast(`✅ ${name} added!`, 'success');
   }
   save();
-  // Auto-add to org chart if endorsed
-  if (mStatus === 'endorsed') {
+  // Auto-add to org chart if in a stage that has DMD/MM assigned
+  if (DMD_REQUIRED_STATUSES.includes(mStatus)) {
     const savedApp = applicants.find(function(a) { return a.id === (editingId || applicants[applicants.length-1].id); });
     if (savedApp) autoAddToOrgChart(savedApp);
   }
@@ -4224,11 +4342,14 @@ function autoAddToOrgChart(applicant) {
   const newPerson = document.createElement('div');
   newPerson.className = 'org-person mo recruited';
   newPerson.setAttribute('data-applicant-id', applicant.id);
+  const newBadge = applicant.isNewAgent
+    ? '<span class="org-person-badge badge-mo-t" style="background:#DCFCE7;color:#15803D">NEW</span>'
+    : '<span class="org-person-badge badge-mo-t">MO</span>';
   newPerson.innerHTML = '<div class="org-person-avatar">' + initials + '</div>'
     + '<div class="org-person-info">'
     + '<div class="org-person-name">' + applicant.name + '</div>'
     + '<div class="org-person-title">' + role + '</div>'
-    + '<span class="org-person-badge badge-mo-t" style="background:#DCFCE7;color:#15803D">NEW</span>'
+    + newBadge
     + '</div>';
 
   if (firstVacant) {
