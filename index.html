@@ -1020,11 +1020,12 @@
             <option value="endorsed">✅ Endorsed to Team</option>
           </select>
           <select class="filter-sel" id="dmdFilter" onchange="renderTable()">
-            <option value="">All DMDs</option>
+            <option value="">All DMD/MM</option>
             <option value="Dexter Soriano">Dexter Soriano</option>
             <option value="Jeffrey Aquino">Jeffrey Aquino</option>
             <option value="Brian Anthony Esguerra">Brian Anthony Esguerra</option>
             <option value="Joan Marie Crizza Esguerra">Joan Marie Crizza Esguerra</option>
+            <option value="Nelvin Joseph Adriatico">Nelvin Adriatico (MM)</option>
           </select>
           <select class="filter-sel" id="typeFilter" onchange="renderTable()">
             <option value="">All Types</option>
@@ -1123,13 +1124,14 @@
           </select>
         </div>
         <div class="form-group" id="f_dmd_group" style="display:none">
-          <label>Endorsed to (Deputy Marketing Director) <span class="req">*</span></label>
+          <label>Endorsed to (DMD / MM) <span class="req">*</span></label>
           <select id="f_endorsed_dmd">
-            <option value="">-- Select DMD --</option>
-            <option value="Dexter Soriano">Dexter Soriano – South Ops</option>
-            <option value="Jeffrey Aquino">Jeffrey Aquino – South Ops</option>
-            <option value="Brian Anthony Esguerra">Brian Anthony Esguerra – North Ops</option>
-            <option value="Joan Marie Crizza Esguerra">Joan Marie Crizza Esguerra – Metro Manila Ops</option>
+            <option value="">-- Select DMD/MM --</option>
+            <option value="Dexter Soriano">Dexter Soriano – South Ops (DMD)</option>
+            <option value="Jeffrey Aquino">Jeffrey Aquino – South Ops (DMD)</option>
+            <option value="Brian Anthony Esguerra">Brian Anthony Esguerra – North Ops (DMD)</option>
+            <option value="Joan Marie Crizza Esguerra">Joan Marie Crizza Esguerra – Metro Manila Ops (DMD)</option>
+            <option value="Nelvin Joseph Adriatico">Nelvin Joseph Adriatico – International Ops (MM)</option>
           </select>
         </div>
         <div class="form-group">
@@ -1877,11 +1879,12 @@
     <!-- DMD Filter -->
     <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
       <select class="filter-sel" id="endorsedDmdFilter" onchange="renderEndorsedTable()" style="min-width:220px">
-        <option value="">All Deputy Marketing Directors</option>
-        <option value="Dexter Soriano">Dexter Soriano – South Ops</option>
-        <option value="Jeffrey Aquino">Jeffrey Aquino – South Ops</option>
-        <option value="Brian Anthony Esguerra">Brian Anthony Esguerra – North Ops</option>
-        <option value="Joan Marie Crizza Esguerra">Joan Marie Crizza Esguerra – Metro Manila Ops</option>
+        <option value="">All DMD / MM</option>
+        <option value="Dexter Soriano">Dexter Soriano – South Ops (DMD)</option>
+        <option value="Jeffrey Aquino">Jeffrey Aquino – South Ops (DMD)</option>
+        <option value="Brian Anthony Esguerra">Brian Anthony Esguerra – North Ops (DMD)</option>
+        <option value="Joan Marie Crizza Esguerra">Joan Marie Crizza Esguerra – Metro Manila Ops (DMD)</option>
+        <option value="Nelvin Joseph Adriatico">Nelvin Joseph Adriatico – International Ops (MM)</option>
       </select>
       <div class="search-box" style="flex:1;min-width:180px"><span>🔍</span><input type="text" id="endorsedSearch" placeholder="Search endorsed applicants…" oninput="renderEndorsedTable()"/></div>
       <span class="results-count" id="endorsedCount">0 endorsed</span>
@@ -2048,13 +2051,14 @@
           </select>
         </div>
         <div class="form-group full" id="m_dmd_group" style="display:none">
-          <label>Endorsed to (Deputy Marketing Director) <span class="req">*</span></label>
+          <label>Endorsed to (DMD / MM) <span class="req">*</span></label>
           <select id="m_endorsed_dmd">
-            <option value="">-- Select DMD --</option>
-            <option value="Dexter Soriano">Dexter Soriano – South Ops</option>
-            <option value="Jeffrey Aquino">Jeffrey Aquino – South Ops</option>
-            <option value="Brian Anthony Esguerra">Brian Anthony Esguerra – North Ops</option>
-            <option value="Joan Marie Crizza Esguerra">Joan Marie Crizza Esguerra – Metro Manila Ops</option>
+            <option value="">-- Select DMD/MM --</option>
+            <option value="Dexter Soriano">Dexter Soriano – South Ops (DMD)</option>
+            <option value="Jeffrey Aquino">Jeffrey Aquino – South Ops (DMD)</option>
+            <option value="Brian Anthony Esguerra">Brian Anthony Esguerra – North Ops (DMD)</option>
+            <option value="Joan Marie Crizza Esguerra">Joan Marie Crizza Esguerra – Metro Manila Ops (DMD)</option>
+            <option value="Nelvin Joseph Adriatico">Nelvin Joseph Adriatico – International Ops (MM)</option>
           </select>
         </div>
         <div class="form-group">
@@ -2366,10 +2370,11 @@ const STATUS_LABELS = {
 };
 
 const DMD_LIST = [
-  { name: 'Dexter Soriano',              area: 'South Ops',        color: '#16A34A' },
-  { name: 'Jeffrey Aquino',              area: 'South Ops',        color: '#15803D' },
-  { name: 'Brian Anthony Esguerra',      area: 'North Ops',        color: '#1E8449' },
-  { name: 'Joan Marie Crizza Esguerra',  area: 'Metro Manila Ops', color: '#8E44AD' },
+  { name: 'Dexter Soriano',              area: 'South Ops',          color: '#16A34A', teamId: 'team-dexter',  role: 'DMD' },
+  { name: 'Jeffrey Aquino',              area: 'South Ops',          color: '#15803D', teamId: 'team-jeffrey', role: 'DMD' },
+  { name: 'Brian Anthony Esguerra',      area: 'North Ops',          color: '#1E8449', teamId: 'team-brian',   role: 'DMD' },
+  { name: 'Joan Marie Crizza Esguerra',  area: 'Metro Manila Ops',   color: '#8E44AD', teamId: 'team-joan',    role: 'DMD' },
+  { name: 'Nelvin Joseph Adriatico',     area: 'International Ops',  color: '#059669', teamId: 'team-nelvin',  role: 'MM'  },
 ];
 
 const PIPELINE_ORDER = ['send_appointments','initial_interview','mcl_interview','som_interview','care_training','mcl_training','cancelled','endorsed'];
@@ -2539,7 +2544,15 @@ function renderDashboard() {
       }, 0) / endorsedWithDates.length)
     : null;
 
-  // Read live values from Org Chart DOM
+  // Agent sub-metrics (from applicant data)
+  const endorsedAll = liveApps().filter(a => a.status === 'endorsed');
+  const totalCurrent = endorsedAll.length; // Contracted, with or without subsidy
+  const totalBackEnd = endorsedAll.filter(a => a.hasSubsidy === true).length; // Contracted WITH subsidy
+  const totalProjected = liveApps().filter(a =>
+    ['endorsed','som_interview','care_training','mcl_training'].includes(a.status)
+  ).length; // Contracted + SOM + Training
+
+  // Read live values from Org Chart DOM (baseline static staff + dynamic applicants)
   const orgVal = id => document.getElementById(id)?.textContent?.trim() || '—';
   const orgNum = id => parseInt(document.getElementById(id)?.textContent) || 0;
   const orgFilled   = orgNum('stat-total-filled');
@@ -2552,7 +2565,7 @@ function renderDashboard() {
     ${statCard('Total Applicants', total, '👥', 'blue', `${active} active · ${cancelled} cancelled`, undefined, undefined, 'total')}
     ${statCard('Cancelled', cancelled, '❌', 'red', `Did not continue`, undefined, undefined, 'cancelled')}
     ${statCard('Active Pipeline', active, '🔄', 'purple', `Send Appts → MCL Training`, undefined, undefined, 'active')}
-    ${statCard('Total Agents', orgFilled, '👤', 'green', `Current filled positions in org`, undefined, undefined, 'agents')}
+    ${agentCard(totalCurrent, totalBackEnd, totalProjected)}
     ${statCard('Total Target', orgTarget, '🎯', 'orange', `Total headcount target in org`, undefined, undefined, 'target')}
     ${statCard('Filled', orgFilled, '📊', 'teal', `${orgRate} fill rate · ${orgFilled} of ${orgTarget}`, undefined, undefined, 'filled')}
     ${statCard('Variance', orgVariance, orgVariance < 0 ? '⚠️' : '✅', orgVariance < 0 ? 'red' : 'green', orgVariance < 0 ? `${Math.abs(orgVariance)} more slots to fill` : 'Org fully staffed!', undefined, undefined, 'variance')}
@@ -2644,9 +2657,14 @@ function renderEndorsedSummaryDash() {
 
   const rows = filtered.map(a => {
     const isResigned = a.employmentStatus === 'resigned';
+    const hasSubsidy = a.hasSubsidy === true;
     const initials = a.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
     const colors = ['#166534','#C9A227','#059669','#8B5CF6','#F97316','#14B8A6'];
     const color = colors[a.name.charCodeAt(0) % colors.length];
+    const dmdEntry = DMD_LIST.find(d => d.name === a.endorsedDmd);
+    const dmdColor = dmdEntry ? dmdEntry.color : '#64748B';
+    const dmdRole = dmdEntry ? dmdEntry.role : 'DMD';
+    const dmdName = a.endorsedDmd || '—';
     return `<tr style="opacity:${isResigned?'0.65':'1'};border-bottom:1px solid var(--gray-100)">
       <td style="padding:10px 16px">
         <div style="display:flex;align-items:center;gap:10px">
@@ -2659,11 +2677,19 @@ function renderEndorsedSummaryDash() {
       </td>
       <td style="padding:10px 16px;font-size:0.78rem;color:var(--gray-400)">${fmtDate(a.dateApplied)}</td>
       <td style="padding:10px 16px">
-        <button onclick="toggleEmploymentStatus('${a.id}')" style="border:none;border-radius:99px;padding:4px 12px;font-size:0.72rem;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:inherit;background:${isResigned?'#FEE2E2':'#DCFCE7'};color:${isResigned?'#991B1B':'#15803D'}">
-          ${isResigned ? 'Resigned' : 'Active'}
-        </button>
+        <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-start">
+          <button onclick="toggleEmploymentStatus('${a.id}')" style="border:none;border-radius:99px;padding:4px 12px;font-size:0.72rem;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:inherit;background:${isResigned?'#FEE2E2':'#DCFCE7'};color:${isResigned?'#991B1B':'#15803D'}">
+            ${isResigned ? 'Resigned' : 'Active'}
+          </button>
+          <button onclick="toggleSubsidy('${a.id}')" style="border:none;border-radius:99px;padding:3px 10px;font-size:0.66rem;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:inherit;background:${hasSubsidy?'#DCFCE7':'var(--gray-100)'};color:${hasSubsidy?'#15803D':'var(--gray-400)'}">
+            ${hasSubsidy ? 'Subsidy ✓' : 'No Subsidy'}
+          </button>
+        </div>
       </td>
-      <td style="padding:10px 16px;font-size:0.8rem;color:var(--gray-600);font-weight:600">${a.endorsedTo||'—'}</td>
+      <td style="padding:10px 16px">
+        <div style="font-size:0.8rem;font-weight:700;color:${dmdColor}">${dmdName}</div>
+        <div style="font-size:0.66rem;color:var(--gray-400);margin-top:2px">${dmdRole} · ${dmdEntry?dmdEntry.area:'—'}</div>
+      </td>
     </tr>`;
   }).join('');
 
@@ -2707,8 +2733,8 @@ function renderEndorsedSummaryDash() {
           <tr style="background:var(--gray-50);border-bottom:2px solid var(--gray-200)">
             <th style="padding:10px 16px;text-align:left;font-size:0.72rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em">Agent</th>
             <th style="padding:10px 16px;text-align:left;font-size:0.72rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em">Date Applied</th>
-            <th style="padding:10px 16px;text-align:left;font-size:0.72rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em">Status</th>
-            <th style="padding:10px 16px;text-align:left;font-size:0.72rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em">DMD</th>
+            <th style="padding:10px 16px;text-align:left;font-size:0.72rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em">Status / Subsidy</th>
+            <th style="padding:10px 16px;text-align:left;font-size:0.72rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em">DMD / MM</th>
           </tr>
         </thead>
         <tbody>${rows}${emptyRow}</tbody>
@@ -2730,6 +2756,85 @@ function toggleEmploymentStatus(id) {
   save();
   renderEndorsedSummaryDash();
   toast(a.employmentStatus === 'resigned' ? `${a.name} marked as Resigned` : `${a.name} marked as Active`);
+}
+
+function toggleSubsidy(id) {
+  const a = applicants.find(x => x.id === id);
+  if (!a) return;
+  a.hasSubsidy = !a.hasSubsidy;
+  save();
+  renderEndorsedSummaryDash();
+  toast(a.hasSubsidy ? `${a.name} — Subsidy ON` : `${a.name} — No Subsidy`);
+}
+
+// ─── AGENT CARD ───────────────────────────────────────────────────
+function agentCard(current, backEnd, projected) {
+  return `<div class="stat-card green" onclick="showAgentDetail()" style="position:relative;cursor:pointer" title="Click to see agent breakdown">
+    <div class="stat-top">
+      <div><div class="stat-label">Total Agents</div><div class="stat-number">${current}</div></div>
+      <div class="stat-icon green">👤</div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
+      <div style="flex:1;min-width:80px;background:#F0FDF4;border-radius:8px;padding:7px 10px;border:1px solid #DCFCE7">
+        <div style="font-size:0.65rem;font-weight:700;color:#15803D;text-transform:uppercase;letter-spacing:0.05em">Current</div>
+        <div style="font-size:1.1rem;font-weight:800;color:#166534;line-height:1.2">${current}</div>
+        <div style="font-size:0.6rem;color:#6B7280">All contracted</div>
+      </div>
+      <div style="flex:1;min-width:80px;background:#F0FDF4;border-radius:8px;padding:7px 10px;border:1px solid #DCFCE7">
+        <div style="font-size:0.65rem;font-weight:700;color:#15803D;text-transform:uppercase;letter-spacing:0.05em">Back End</div>
+        <div style="font-size:1.1rem;font-weight:800;color:#166534;line-height:1.2">${backEnd}</div>
+        <div style="font-size:0.6rem;color:#6B7280">With subsidy</div>
+      </div>
+      <div style="flex:1;min-width:80px;background:#F0FDF4;border-radius:8px;padding:7px 10px;border:1px solid #DCFCE7">
+        <div style="font-size:0.65rem;font-weight:700;color:#15803D;text-transform:uppercase;letter-spacing:0.05em">Projected</div>
+        <div style="font-size:1.1rem;font-weight:800;color:#166534;line-height:1.2">${projected}</div>
+        <div style="font-size:0.6rem;color:#6B7280">Contracted + SOM/Training</div>
+      </div>
+    </div>
+    <div style="position:absolute;bottom:8px;right:12px;font-size:0.65rem;color:var(--gray-400);font-weight:500;letter-spacing:0.02em">View details →</div>
+  </div>`;
+}
+
+function showAgentDetail() {
+  const live = liveApps();
+  const endorsed = live.filter(a => a.status === 'endorsed');
+  const withSubsidy = endorsed.filter(a => a.hasSubsidy === true);
+  const withoutSubsidy = endorsed.filter(a => !a.hasSubsidy);
+  const projected = live.filter(a => ['endorsed','som_interview','care_training','mcl_training'].includes(a.status));
+  const inTraining = live.filter(a => ['som_interview','care_training','mcl_training'].includes(a.status));
+
+  const sectionHtml = (title, color, people) => {
+    if (!people.length) return `<div style="padding:10px 20px 4px;font-size:0.74rem;font-weight:700;color:${color};text-transform:uppercase;letter-spacing:0.05em;border-top:1px solid var(--gray-100)">${title} (0)</div>`;
+    const cols = ['#166534','#C9A227','#059669','#8B5CF6','#F97316','#14B8A6'];
+    return `<div style="padding:10px 20px 4px;font-size:0.74rem;font-weight:700;color:${color};text-transform:uppercase;letter-spacing:0.05em;border-top:1px solid var(--gray-100)">${title} (${people.length})</div>`
+      + people.map(a => {
+          const initials = a.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+          const c = cols[a.name.charCodeAt(0) % cols.length];
+          const dmd = a.endorsedDmd || a.endorsedTo || '—';
+          const subsidy = a.hasSubsidy ? '<span style="font-size:0.65rem;background:#DCFCE7;color:#15803D;padding:2px 7px;border-radius:99px;font-weight:700;margin-left:6px">Subsidy</span>' : '';
+          const stLbl = STATUS_LABELS[a.status] || a.status;
+          const stColor = PIPELINE_COLORS[a.status] || '#64748B';
+          return `<div style="display:flex;align-items:center;gap:10px;padding:9px 20px;border-bottom:1px solid var(--gray-50)">
+            <div style="width:32px;height:32px;border-radius:50%;background:${c}22;color:${c};display:flex;align-items:center;justify-content:center;font-size:0.68rem;font-weight:800;flex-shrink:0">${initials}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-weight:700;font-size:0.85rem;color:var(--gray-900)">${a.name}${subsidy}</div>
+              <div style="font-size:0.72rem;color:var(--gray-400)">${a.position||'—'} · DMD/MM: ${dmd}</div>
+            </div>
+            <div style="font-size:0.7rem;font-weight:700;padding:3px 8px;border-radius:99px;background:${stColor}18;color:${stColor};white-space:nowrap">${stLbl}</div>
+          </div>`;
+        }).join('');
+  };
+
+  const body = `<div style="padding:14px 20px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);display:flex;gap:16px;flex-wrap:wrap">
+    <span style="font-size:0.8rem;color:var(--gray-600)">Current: <strong style="color:#166534">${endorsed.length}</strong></span>
+    <span style="font-size:0.8rem;color:var(--gray-600)">Back End (Subsidy): <strong style="color:#166534">${withSubsidy.length}</strong></span>
+    <span style="font-size:0.8rem;color:var(--gray-600)">Projected: <strong style="color:#166534">${projected.length}</strong></span>
+  </div>`
+  + sectionHtml('Current — With Subsidy (Back End)', '#15803D', withSubsidy)
+  + sectionHtml('Current — No Subsidy', '#6B7280', withoutSubsidy)
+  + sectionHtml('In Pipeline (SOM / Training)', '#F97316', inTraining);
+
+  openDetailModal('Total Agents Breakdown', body);
 }
 
 // ─── DETAIL MODAL ─────────────────────────────────────────────────
@@ -2757,7 +2862,7 @@ function detailPersonList(people, emptyMsg) {
       <div style="width:36px;height:36px;border-radius:50%;background:${color}22;color:${color};display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:800;flex-shrink:0">${initials}</div>
       <div style="flex:1;min-width:0">
         <div style="font-weight:700;font-size:0.88rem;color:var(--gray-900)">${a.name}</div>
-        <div style="font-size:0.74rem;color:var(--gray-400)">${a.position||'—'} ${a.endorsedTo?'· DMD: '+a.endorsedTo:''}</div>
+        <div style="font-size:0.74rem;color:var(--gray-400)">${a.position||'—'} ${a.endorsedDmd?'· DMD/MM: '+a.endorsedDmd:''}</div>
       </div>
       <div style="font-size:0.72rem;font-weight:700;padding:3px 10px;border-radius:99px;background:${statusColor}18;color:${statusColor}">${statusLabel}</div>
     </div>`;
@@ -2998,6 +3103,7 @@ function addApplicant() {
   autoSetInterviewDate(a);
   applicants.push(a);
   save();
+  if (a.status === 'endorsed') autoAddToOrgChart(a);
   clearForm();
   toast(`✅ ${name} added to the pipeline!`, 'success');
 }
@@ -3112,6 +3218,11 @@ function saveModal() {
     toast(`✅ ${name} added!`, 'success');
   }
   save();
+  // Auto-add to org chart if endorsed
+  if (mStatus === 'endorsed') {
+    const savedApp = applicants.find(function(a) { return a.id === (editingId || applicants[applicants.length-1].id); });
+    if (savedApp) autoAddToOrgChart(savedApp);
+  }
   closeModal();
   const activePage = document.querySelector('.page.active');
   if (activePage) {
@@ -3995,6 +4106,7 @@ function renderFunnelChart() {
       });
     });
     loadOrgData();
+    syncEndorsedToOrgChart();
   });
 })();
 
@@ -4082,6 +4194,59 @@ function saveOrgData() {
   clone.querySelectorAll('[contenteditable]').forEach(function(el) { el.removeAttribute('contenteditable'); });
   clone.classList.remove('org-editing');
   localStorage.setItem(ORG_KEY, clone.innerHTML);
+}
+
+// ─── AUTO-ADD ENDORSED AGENTS TO ORG CHART ────────────────────────
+function autoAddToOrgChart(applicant) {
+  if (!applicant || applicant.status !== 'endorsed' || !applicant.endorsedDmd) return;
+  const dmdEntry = DMD_LIST.find(d => d.name === applicant.endorsedDmd);
+  if (!dmdEntry) return;
+  const teamSection = document.getElementById(dmdEntry.teamId);
+  if (!teamSection) return;
+
+  // Check if already in org chart by applicant ID
+  if (teamSection.querySelector(`[data-applicant-id="${applicant.id}"]`)) return;
+
+  // Find the MO group (last org-team-group that has lbl-mo label, or the first group for Nelvin who has MO only)
+  const groups = teamSection.querySelectorAll('.org-team-group');
+  let targetGroup = null;
+  groups.forEach(function(g) {
+    if (g.querySelector('.lbl-mo')) targetGroup = g;
+  });
+  // Fallback: use last group
+  if (!targetGroup && groups.length > 0) targetGroup = groups[groups.length - 1];
+  if (!targetGroup) return;
+
+  // Replace first vacant slot if available, otherwise append before the add-member button
+  const firstVacant = targetGroup.querySelector('.org-person.vacant');
+  const initials = applicant.name.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
+  const role = dmdEntry.role === 'MM' ? 'MO – International' : 'MO – ' + (applicant.project || 'Team');
+  const newPerson = document.createElement('div');
+  newPerson.className = 'org-person mo recruited';
+  newPerson.setAttribute('data-applicant-id', applicant.id);
+  newPerson.innerHTML = '<div class="org-person-avatar">' + initials + '</div>'
+    + '<div class="org-person-info">'
+    + '<div class="org-person-name">' + applicant.name + '</div>'
+    + '<div class="org-person-title">' + role + '</div>'
+    + '<span class="org-person-badge badge-mo-t" style="background:#DCFCE7;color:#15803D">NEW</span>'
+    + '</div>';
+
+  if (firstVacant) {
+    firstVacant.parentNode.replaceChild(newPerson, firstVacant);
+  } else {
+    const addBtn = targetGroup.querySelector('.org-add-member');
+    if (addBtn) targetGroup.insertBefore(newPerson, addBtn);
+    else targetGroup.appendChild(newPerson);
+  }
+
+  recalcOrgStats();
+  saveOrgData();
+}
+
+// Sync all currently endorsed applicants to org chart (run on page load)
+function syncEndorsedToOrgChart() {
+  const endorsed = applicants.filter(function(a) { return !a.archived && a.status === 'endorsed' && a.endorsedDmd; });
+  endorsed.forEach(function(a) { autoAddToOrgChart(a); });
 }
 
 function startOrgEdit() {
