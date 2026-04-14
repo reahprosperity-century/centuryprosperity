@@ -895,6 +895,7 @@
       <button class="quick-action-btn" onclick="exportCSV()">📥 Export CSV</button>
       <button class="quick-action-btn" onclick="openModal()">➕ Add Applicant</button>
       <button class="quick-action-btn" onclick="printTable()">🖨️ Print</button>
+      <button class="quick-action-btn" style="background:#fee2e2;color:#dc2626;border:1.5px solid #fca5a5" onclick="archiveAllApplicants()">🗑️ Delete All</button>
     </div>
     <!-- TABLE VIEW -->
     <div id="tableView">
@@ -2105,61 +2106,14 @@ function connectFirebase() {
 function startFirebaseListeners() {
   if (!_fbDb) return;
 
-  // Track whether we've done the initial Firebase load
-  let _fbApplicantsLoaded = false;
-
   // Monitor connection state
   _fbDb.ref('.info/connected').on('value', snap => {
     _fbConnected = !!snap.val();
     setConnBadge(_fbConnected ? 'synced' : 'syncing', _fbConnected ? 'Synced' : 'Reconnecting…');
   });
 
-  // Real-time listener: applicants
-  _fbDb.ref('applicants').on('value', snap => {
-    const val = snap.val();
-    if (!_fbApplicantsLoaded) {
-      // ── INITIAL LOAD ONLY ──────────────────────────────────────────
-      // This branch runs exactly once to sync from Firebase at startup.
-      _fbApplicantsLoaded = true;
-      if (val) {
-        // Filter out any tombstoned (permanently deleted) IDs from cloud data
-        const fromCloud = Object.values(val).filter(a => !_deletedIds.has(a.id));
-        if (applicants.length === 0) {
-          // Local is empty — trust cloud (minus tombstoned) entirely
-          applicants = fromCloud;
-          localStorage.setItem('rt_applicants', JSON.stringify(applicants));
-        } else {
-          // Local has data — only pull in cloud entries NOT in local AND NOT tombstoned
-          const localIds = new Set(applicants.map(a => a.id));
-          const cloudOnly = fromCloud.filter(a => !localIds.has(a.id) && !_deletedIds.has(a.id));
-          if (cloudOnly.length > 0) {
-            applicants = [...applicants, ...cloudOnly];
-            localStorage.setItem('rt_applicants', JSON.stringify(applicants));
-          }
-        }
-        // Always push authoritative local state to Firebase (cleans up deleted items in cloud)
-        const obj = {};
-        applicants.forEach(a => { obj[a.id] = a; });
-        _fbDb.ref('applicants').set(obj);
-      } else {
-        // Firebase is empty — push local data up
-        if (applicants.length > 0) {
-          const obj = {};
-          applicants.forEach(a => { obj[a.id] = a; });
-          _fbDb.ref('applicants').set(obj);
-        }
-      }
-    } else {
-      // ── SUBSEQUENT FIRES (after initial load) ─────────────────────
-      // Local state is authoritative. These fires are triggered by our
-      // own save() calls pushing to Firebase. Do NOT overwrite local
-      // with cloud data — that would restore deleted/modified records.
-      // Just keep localStorage in sync with current in-memory state.
-      localStorage.setItem('rt_applicants', JSON.stringify(applicants));
-    }
-    updateBadges();
-    updatePositionList();
-    // Refresh whichever page is active
+  function refreshActivePage() {
+    updateBadges(); updatePositionList();
     const activePage = document.querySelector('.page.active');
     if (activePage) {
       const pid = activePage.id.replace('page-','');
@@ -2170,9 +2124,59 @@ function startFirebaseListeners() {
       else if (pid === 'calendar') renderCalendar();
       else if (pid === 'archived') renderArchivedTable();
     }
-  }, err => {
-    setConnBadge('error', 'Sync Error');
-    console.warn('Firebase read error:', err);
+  }
+
+  // ── STEP 1: Load tombstones from Firebase FIRST, then load applicants ──
+  // This ensures deleted IDs are known before applicants are processed,
+  // even on a fresh browser/device with empty localStorage.
+  _fbDb.ref('deleted_ids').once('value', tombSnap => {
+    const tombVal = tombSnap.val();
+    if (tombVal) {
+      // Merge Firebase tombstones into local set
+      const fbDeleted = Array.isArray(tombVal) ? tombVal : Object.values(tombVal);
+      fbDeleted.forEach(id => _deletedIds.add(id));
+      localStorage.setItem('rt_deleted_ids', JSON.stringify([..._deletedIds]));
+    }
+
+    // ── STEP 2: Now load applicants, filtered by the complete tombstone list ──
+    let _fbApplicantsLoaded = false;
+    _fbDb.ref('applicants').on('value', snap => {
+      const val = snap.val();
+      if (!_fbApplicantsLoaded) {
+        _fbApplicantsLoaded = true;
+        if (val) {
+          // Strip any tombstoned IDs from cloud data
+          const fromCloud = Object.values(val).filter(a => !_deletedIds.has(a.id));
+          // Local is always authoritative if it has data; otherwise use cloud
+          if (applicants.length === 0) {
+            applicants = fromCloud;
+          } else {
+            // Merge only cloud entries not already local and not tombstoned
+            const localIds = new Set(applicants.map(a => a.id));
+            const newFromCloud = fromCloud.filter(a => !localIds.has(a.id));
+            if (newFromCloud.length > 0) applicants = [...applicants, ...newFromCloud];
+          }
+          localStorage.setItem('rt_applicants', JSON.stringify(applicants));
+          // Push clean state back to Firebase (removes deleted items from cloud)
+          const obj = {};
+          applicants.forEach(a => { obj[a.id] = a; });
+          _fbDb.ref('applicants').set(obj);
+        } else {
+          if (applicants.length > 0) {
+            const obj = {};
+            applicants.forEach(a => { obj[a.id] = a; });
+            _fbDb.ref('applicants').set(obj);
+          }
+        }
+      } else {
+        // Subsequent fires from our own saves — just sync localStorage
+        localStorage.setItem('rt_applicants', JSON.stringify(applicants));
+      }
+      refreshActivePage();
+    }, err => {
+      setConnBadge('error', 'Sync Error');
+      console.warn('Firebase read error:', err);
+    });
   });
 
   // Real-time listener: headcounts
@@ -2226,7 +2230,10 @@ let headcounts = JSON.parse(localStorage.getItem('rt_headcounts') || '[]');
 let _deletedIds = new Set(JSON.parse(localStorage.getItem('rt_deleted_ids') || '[]'));
 function addTombstone(ids) {
   ids.forEach(id => _deletedIds.add(id));
-  localStorage.setItem('rt_deleted_ids', JSON.stringify([..._deletedIds]));
+  const arr = [..._deletedIds];
+  localStorage.setItem('rt_deleted_ids', JSON.stringify(arr));
+  // Also persist tombstones to Firebase so any device/browser respects them
+  if (_fbDb) _fbDb.ref('deleted_ids').set(arr).catch(() => {});
 }
 function saveNow() {
   // Immediate Firebase push — no debounce, used for permanent deletions
@@ -2236,8 +2243,12 @@ function saveNow() {
     setConnBadge('syncing', 'Saving…');
     const obj = {};
     applicants.forEach(a => { obj[a.id] = a; });
-    _fbDb.ref('applicants').set(obj)
-      .then(() => setConnBadge('synced', 'Synced'))
+    // Push applicants AND tombstones together
+    const arr = [..._deletedIds];
+    Promise.all([
+      _fbDb.ref('applicants').set(obj),
+      _fbDb.ref('deleted_ids').set(arr)
+    ]).then(() => setConnBadge('synced', 'Synced'))
       .catch(() => setConnBadge('error', 'Save Error'));
   }
 }
@@ -2846,6 +2857,25 @@ function restoreAllArchived() {
   applicants.forEach(a => { if (a.archived) { delete a.archived; delete a.archivedDate; } });
   save(); renderArchivedTable(); updateBadges();
   toast(`✅ ${count} applicant(s) restored.`);
+}
+
+function archiveAllApplicants() {
+  const active = liveApps();
+  const count = active.length;
+  if (!count) { toast('No active applicants to delete.'); return; }
+  if (!confirm(`Archive ALL ${count} active applicant(s)? They will move to Archived where you can permanently delete them.`)) return;
+  const now = new Date().toISOString();
+  active.forEach(a => { a.archived = true; a.archivedDate = now; });
+  save();
+  renderTable();
+  updateBadges();
+  toast(`🗄️ ${count} applicant(s) moved to Archived. Go to Archived to permanently delete them.`);
+  // Auto-navigate to Archived page
+  setTimeout(() => {
+    const archiveNav = document.querySelector('[onclick*="archived"], [onclick*="page-archived"]');
+    if (archiveNav) archiveNav.click();
+    else showPage('archived');
+  }, 1200);
 }
 
 function deleteAllArchived() {
