@@ -2810,13 +2810,13 @@ function renderDashboard() {
   const allLive = liveApps();
   // Leaders count dynamically from localStorage
   const leaderCount = leaders.length;
-  // BACK END = contracted WITH subsidy only + leaders (they have subsidy)
-  const totalBackEnd = allLive.filter(a => a.contractedStatus === 'contracted_with_subsidy').length + leaderCount;
-  // CURRENT = same formula as Projected (no Back End overlap) = no_subsidy + TBD + leaders
+  // CURRENT = all 3 contracted options + leaders
   const totalCurrent = allLive.filter(a =>
-    ['contracted_no_subsidy','contracted_tbd'].includes(a.contractedStatus)
+    ['contracted_with_subsidy','contracted_no_subsidy','contracted_tbd'].includes(a.contractedStatus)
   ).length + leaderCount;
-  // PROJECTED = same as Current (no_subsidy + TBD + leaders) — no double-counting
+  // BACK END = contracted WITH subsidy only + leaders
+  const totalBackEnd = allLive.filter(a => a.contractedStatus === 'contracted_with_subsidy').length + leaderCount;
+  // PROJECTED = same format as Current (all 3 contracted options + leaders)
   const totalProjected = totalCurrent;
 
   // Read live values from Org Chart DOM (baseline static staff + dynamic applicants)
@@ -3045,7 +3045,7 @@ function agentCard(current, backEnd, projected) {
       <div style="flex:1;min-width:80px;background:#F0FDF4;border-radius:8px;padding:7px 10px;border:1px solid #DCFCE7">
         <div style="font-size:0.65rem;font-weight:700;color:#15803D;text-transform:uppercase;letter-spacing:0.05em">Current</div>
         <div style="font-size:1.1rem;font-weight:800;color:#166534;line-height:1.2">${current}</div>
-        <div style="font-size:0.6rem;color:#6B7280">No subsidy + TBD + leaders</div>
+        <div style="font-size:0.6rem;color:#6B7280">All contracted + leaders</div>
       </div>
       <div style="flex:1;min-width:80px;background:#F0FDF4;border-radius:8px;padding:7px 10px;border:1px solid #DCFCE7">
         <div style="font-size:0.65rem;font-weight:700;color:#15803D;text-transform:uppercase;letter-spacing:0.05em">Back End</div>
@@ -3055,7 +3055,7 @@ function agentCard(current, backEnd, projected) {
       <div style="flex:1;min-width:80px;background:#F0FDF4;border-radius:8px;padding:7px 10px;border:1px solid #DCFCE7">
         <div style="font-size:0.65rem;font-weight:700;color:#15803D;text-transform:uppercase;letter-spacing:0.05em">Projected</div>
         <div style="font-size:1.1rem;font-weight:800;color:#166534;line-height:1.2">${projected}</div>
-        <div style="font-size:0.6rem;color:#6B7280">No subsidy + TBD + leaders</div>
+        <div style="font-size:0.6rem;color:#6B7280">All contracted + leaders</div>
       </div>
     </div>
     <div style="position:absolute;bottom:8px;right:12px;font-size:0.65rem;color:var(--gray-400);font-weight:500;letter-spacing:0.02em">View details →</div>
