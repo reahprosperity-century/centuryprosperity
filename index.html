@@ -914,6 +914,10 @@
   </div>
 
   <div class="nav-section-label">Manage</div>
+  <div class="nav-item" onclick="showPage('checklist', this);renderChecklist();closeSidebar()">
+    <span class="nav-icon">☑</span> Checklist
+    <span class="nav-badge" id="navBadgeChecklist" style="background:#059669">0</span>
+  </div>
   <div class="nav-item" onclick="showPage('leaders', this);renderLeaders();closeSidebar()">
     <span class="nav-icon">★</span> Leaders
     <span class="nav-badge" id="navBadgeLeaders" style="background:var(--primary)">0</span>
@@ -2027,6 +2031,91 @@
     </div>
   </div>
 
+  <!-- ── CHECKLIST ── -->
+  <div id="page-checklist" class="page">
+    <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
+      <div>
+        <div class="page-title">Agent Checklist</div>
+        <div class="page-subtitle">Track training &amp; sales milestones for each endorsed/contracted agent</div>
+      </div>
+      <button onclick="exportChecklist()" style="background:linear-gradient(135deg,#166534,#16A34A);color:#fff;border:none;border-radius:9px;padding:10px 20px;font-size:0.84rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;font-family:inherit;box-shadow:0 3px 10px rgba(22,101,52,0.25)">📥 Export CSV</button>
+    </div>
+
+    <!-- Summary Cards -->
+    <div id="checklistSummaryCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-bottom:24px"></div>
+
+    <!-- Per-Task Progress -->
+    <div class="table-card" style="padding:20px 24px;margin-bottom:24px">
+      <div style="font-size:0.9rem;font-weight:800;color:var(--primary);margin-bottom:16px">📋 Task Completion Rates</div>
+      <div id="checklistTaskProgress"></div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
+      <select class="filter-sel" id="checklistDmdFilter" onchange="renderChecklist()" style="min-width:200px">
+        <option value="">All DMD / MM</option>
+      </select>
+      <div class="search-box" style="flex:1;min-width:180px">
+        <span>🔍</span>
+        <input type="text" id="checklistSearch" placeholder="Search agent name…" oninput="renderChecklist()"/>
+      </div>
+      <span class="results-count" id="checklistCount">0 agents</span>
+    </div>
+
+    <!-- Checklist Table -->
+    <div class="table-card">
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:0.82rem;min-width:1100px">
+          <thead>
+            <tr style="background:var(--gray-50);border-bottom:2px solid var(--gray-200)">
+              <th style="padding:10px 12px;text-align:left;font-size:0.7rem;font-weight:800;color:var(--gray-500);text-transform:uppercase;white-space:nowrap;position:sticky;left:0;background:var(--gray-50);z-index:2">Agent</th>
+              <th style="padding:10px 8px;text-align:left;font-size:0.7rem;font-weight:800;color:var(--gray-500);text-transform:uppercase;white-space:nowrap">DMD / MM</th>
+              <th style="padding:10px 8px;text-align:center;font-size:0.7rem;font-weight:800;color:#15803D;text-transform:uppercase;white-space:nowrap" title="Care Training">CARE</th>
+              <th style="padding:10px 8px;text-align:center;font-size:0.7rem;font-weight:800;color:#15803D;text-transform:uppercase;white-space:nowrap" title="Product Knowledge Exam">PKE</th>
+              <th style="padding:10px 8px;text-align:center;font-size:0.7rem;font-weight:800;color:#15803D;text-transform:uppercase;white-space:nowrap" title="Revalida">REVAL</th>
+              <th style="padding:10px 8px;text-align:center;font-size:0.7rem;font-weight:800;color:#15803D;text-transform:uppercase;white-space:nowrap" title="Culture Setting">CULT</th>
+              <th style="padding:10px 8px;text-align:center;font-size:0.7rem;font-weight:800;color:#15803D;text-transform:uppercase;white-space:nowrap" title="Systems Training">SYS</th>
+              <th style="padding:10px 8px;text-align:center;font-size:0.7rem;font-weight:800;color:#15803D;text-transform:uppercase;white-space:nowrap" title="Practicum - Lead Generation">PRAC</th>
+              <th style="padding:10px 8px;text-align:center;font-size:0.7rem;font-weight:800;color:#15803D;text-transform:uppercase;white-space:nowrap" title="Salesmanship">SALES</th>
+              <th style="padding:10px 8px;text-align:center;font-size:0.7rem;font-weight:800;color:#15803D;text-transform:uppercase;white-space:nowrap" title="Revalida with Objections">RWO</th>
+              <th style="padding:10px 8px;text-align:center;font-size:0.7rem;font-weight:800;color:#0E7490;text-transform:uppercase;white-space:nowrap" title="Leads since started">LEADS</th>
+              <th style="padding:10px 8px;text-align:center;font-size:0.7rem;font-weight:800;color:#0E7490;text-transform:uppercase;white-space:nowrap" title="Presentations since started">PRES</th>
+              <th style="padding:10px 8px;text-align:center;font-size:0.7rem;font-weight:800;color:#7C3AED;text-transform:uppercase;white-space:nowrap" title="Closed Sales with Assistance">CSA</th>
+              <th style="padding:10px 8px;text-align:center;font-size:0.7rem;font-weight:800;color:#7C3AED;text-transform:uppercase;white-space:nowrap" title="Closed Sales Solo">CSS</th>
+              <th style="padding:10px 8px;text-align:center;font-size:0.7rem;font-weight:800;color:var(--gray-500);text-transform:uppercase;white-space:nowrap">Progress</th>
+            </tr>
+            <tr style="background:#F8FAF8;border-bottom:1px solid var(--gray-200)">
+              <td colspan="2"></td>
+              <td colspan="8" style="padding:4px 8px;font-size:0.65rem;color:#15803D;text-align:center;font-weight:600">✅ Training Tasks (check when done)</td>
+              <td colspan="2" style="padding:4px 8px;font-size:0.65rem;color:#0E7490;text-align:center;font-weight:600">📊 Activity Counts</td>
+              <td colspan="2" style="padding:4px 8px;font-size:0.65rem;color:#7C3AED;text-align:center;font-weight:600">💰 Sales Counts</td>
+              <td></td>
+            </tr>
+          </thead>
+          <tbody id="checklistTableBody">
+            <tr><td colspan="15" style="padding:32px;text-align:center;color:var(--gray-400)">No agents in checklist yet. Add endorsed/contracted applicants to see them here.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div style="display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;font-size:0.72rem;color:var(--gray-500)">
+      <span><strong style="color:#15803D">CARE</strong> = Care Training</span>
+      <span><strong style="color:#15803D">PKE</strong> = Product Knowledge Exam</span>
+      <span><strong style="color:#15803D">REVAL</strong> = Revalida</span>
+      <span><strong style="color:#15803D">CULT</strong> = Culture Setting</span>
+      <span><strong style="color:#15803D">SYS</strong> = Systems Training</span>
+      <span><strong style="color:#15803D">PRAC</strong> = Practicum-Lead Gen</span>
+      <span><strong style="color:#15803D">SALES</strong> = Salesmanship</span>
+      <span><strong style="color:#15803D">RWO</strong> = Revalida with Objections</span>
+      <span><strong style="color:#0E7490">LEADS</strong> = Leads since started</span>
+      <span><strong style="color:#0E7490">PRES</strong> = Presentations since started</span>
+      <span><strong style="color:#7C3AED">CSA</strong> = Closed Sales w/ Assistance</span>
+      <span><strong style="color:#7C3AED">CSS</strong> = Closed Sales Solo</span>
+    </div>
+  </div>
+
   <!-- ── LEADERS ── -->
   <div id="page-leaders" class="page">
     <div class="page-header">
@@ -2657,6 +2746,7 @@ function showPage(id, el) {
   if (id === 'headcount') renderHeadcount();
   if (id === 'projects') renderProjects();
   if (id === 'leaders') renderLeaders();
+  if (id === 'checklist') renderChecklist();
   if (id === 'endorsed') renderEndorsedTable();
   if (id === 'cancelled') renderFilteredTable('cancelled','cancelSearch','cancelTable');
   if (id === 'archived') renderArchivedTable();
@@ -2676,6 +2766,8 @@ function updateBadges() {
   if (archBadge) archBadge.textContent = applicants.filter(a=>a.archived).length;
   const ldrBadge = document.getElementById('navBadgeLeaders');
   if (ldrBadge) ldrBadge.textContent = leaders.length;
+  const clBadge = document.getElementById('navBadgeChecklist');
+  if (clBadge) clBadge.textContent = clAgents().length;
 }
 
 // ─── POSITION LIST ────────────────────────────────────────────────
@@ -2718,16 +2810,14 @@ function renderDashboard() {
   const allLive = liveApps();
   // Leaders count dynamically from localStorage
   const leaderCount = leaders.length;
-  // CURRENT = all 3 contracted options + leaders
-  const totalCurrent = allLive.filter(a =>
-    ['contracted_with_subsidy','contracted_no_subsidy','contracted_tbd'].includes(a.contractedStatus)
-  ).length + leaderCount;
-  // BACK END = contracted WITH subsidy only + leaders (all leaders have subsidy)
+  // BACK END = contracted WITH subsidy only + leaders (they have subsidy)
   const totalBackEnd = allLive.filter(a => a.contractedStatus === 'contracted_with_subsidy').length + leaderCount;
-  // PROJECTED = contracted WITHOUT subsidy + TBD only (Back End excluded to avoid double count) + leaders
-  const totalProjected = allLive.filter(a =>
+  // CURRENT = same formula as Projected (no Back End overlap) = no_subsidy + TBD + leaders
+  const totalCurrent = allLive.filter(a =>
     ['contracted_no_subsidy','contracted_tbd'].includes(a.contractedStatus)
   ).length + leaderCount;
+  // PROJECTED = same as Current (no_subsidy + TBD + leaders) — no double-counting
+  const totalProjected = totalCurrent;
 
   // Read live values from Org Chart DOM (baseline static staff + dynamic applicants)
   const orgVal = id => document.getElementById(id)?.textContent?.trim() || '—';
@@ -2955,7 +3045,7 @@ function agentCard(current, backEnd, projected) {
       <div style="flex:1;min-width:80px;background:#F0FDF4;border-radius:8px;padding:7px 10px;border:1px solid #DCFCE7">
         <div style="font-size:0.65rem;font-weight:700;color:#15803D;text-transform:uppercase;letter-spacing:0.05em">Current</div>
         <div style="font-size:1.1rem;font-weight:800;color:#166534;line-height:1.2">${current}</div>
-        <div style="font-size:0.6rem;color:#6B7280">All contracted + leaders</div>
+        <div style="font-size:0.6rem;color:#6B7280">No subsidy + TBD + leaders</div>
       </div>
       <div style="flex:1;min-width:80px;background:#F0FDF4;border-radius:8px;padding:7px 10px;border:1px solid #DCFCE7">
         <div style="font-size:0.65rem;font-weight:700;color:#15803D;text-transform:uppercase;letter-spacing:0.05em">Back End</div>
@@ -3795,6 +3885,206 @@ function toggleTeam(id) {
   const isOpen = section.classList.contains('open');
   section.classList.toggle('open', !isOpen);
   if (hint) hint.innerHTML = isOpen ? '▼ Tap to see team' : '▲ Tap to collapse';
+}
+
+// ─── CHECKLIST ────────────────────────────────────────────────────
+const CL_BOOL = [
+  { key:'care_training',      label:'Care Training'              },
+  { key:'prod_knowledge',     label:'Product Knowledge Exam'     },
+  { key:'revalida',           label:'Revalida'                   },
+  { key:'culture_setting',    label:'Culture Setting'            },
+  { key:'systems_training',   label:'Systems Training'           },
+  { key:'practicum_lead_gen', label:'Practicum – Lead Generation'},
+  { key:'salesmanship',       label:'Salesmanship'               },
+  { key:'revalida_obj',       label:'Revalida with Objections'   },
+];
+const CL_NUM = [
+  { key:'leads_count',        label:'Leads since started',            color:'#0E7490' },
+  { key:'presentations',      label:'Presentations since started',    color:'#0E7490' },
+  { key:'closed_assist',      label:'Closed Sales with Assistance',   color:'#7C3AED' },
+  { key:'closed_solo',        label:'Closed Sales Solo',              color:'#7C3AED' },
+];
+function getCl(a) { return a.checklist || {}; }
+
+function clAgents() {
+  return liveApps().filter(a =>
+    a.status === 'endorsed' ||
+    ['contracted_with_subsidy','contracted_no_subsidy','contracted_tbd'].includes(a.contractedStatus)
+  );
+}
+
+function renderChecklist() {
+  const agents = clAgents();
+  // Update badge
+  const badge = document.getElementById('navBadgeChecklist');
+  if (badge) badge.textContent = agents.length;
+  const countEl = document.getElementById('checklistCount');
+  if (countEl) countEl.textContent = `${agents.length} agents`;
+
+  // Populate DMD filter
+  const dmdFilter = document.getElementById('checklistDmdFilter');
+  if (dmdFilter) {
+    const cur = dmdFilter.value;
+    dmdFilter.innerHTML = '<option value="">All DMD / MM</option>' +
+      leaders.map(l => `<option value="${l.name}" ${cur===l.name?'selected':''}>${l.name}</option>`).join('');
+  }
+
+  const dmdF = dmdFilter ? dmdFilter.value : '';
+  const search = (document.getElementById('checklistSearch')?.value || '').toLowerCase();
+  const filtered = agents.filter(a => {
+    if (dmdF && a.endorsedDmd !== dmdF) return false;
+    if (search && !a.name.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  // ── Summary Cards ──
+  const summaryEl = document.getElementById('checklistSummaryCards');
+  if (summaryEl) {
+    const totalAgents = agents.length;
+    const totalLeads = agents.reduce((s,a) => s + (parseInt(getCl(a).leads_count)||0), 0);
+    const totalPres = agents.reduce((s,a) => s + (parseInt(getCl(a).presentations)||0), 0);
+    const totalCSA = agents.reduce((s,a) => s + (parseInt(getCl(a).closed_assist)||0), 0);
+    const totalCSS = agents.reduce((s,a) => s + (parseInt(getCl(a).closed_solo)||0), 0);
+    const avgPct = agents.length ? Math.round(agents.reduce((s,a) => {
+      const cl = getCl(a);
+      const done = CL_BOOL.filter(b => cl[b.key]).length;
+      return s + Math.round((done/CL_BOOL.length)*100);
+    },0) / agents.length) : 0;
+
+    summaryEl.innerHTML = [
+      { label:'In Checklist', value:totalAgents, icon:'👥', color:'#15803D', bg:'#F0FDF4' },
+      { label:'Avg Completion', value:avgPct+'%', icon:'📊', color:'#D97706', bg:'#FFFBEB' },
+      { label:'Total Leads', value:totalLeads, icon:'🎯', color:'#0E7490', bg:'#ECFEFF' },
+      { label:'Presentations', value:totalPres, icon:'📢', color:'#0E7490', bg:'#ECFEFF' },
+      { label:'Closed w/ Assist', value:totalCSA, icon:'🤝', color:'#7C3AED', bg:'#F5F3FF' },
+      { label:'Closed Solo', value:totalCSS, icon:'🏆', color:'#7C3AED', bg:'#F5F3FF' },
+    ].map(c => `<div style="background:${c.bg};border-radius:12px;padding:14px 16px;border:1px solid ${c.color}22;box-shadow:0 2px 8px rgba(0,0,0,0.04)">
+      <div style="font-size:1.5rem;margin-bottom:4px">${c.icon}</div>
+      <div style="font-size:1.4rem;font-weight:800;color:${c.color};line-height:1">${c.value}</div>
+      <div style="font-size:0.7rem;font-weight:600;color:var(--gray-500);margin-top:3px">${c.label}</div>
+    </div>`).join('');
+  }
+
+  // ── Per-Task Progress Bars ──
+  const taskEl = document.getElementById('checklistTaskProgress');
+  if (taskEl && agents.length > 0) {
+    taskEl.innerHTML = CL_BOOL.map(b => {
+      const done = agents.filter(a => getCl(a)[b.key]).length;
+      const pct = Math.round((done/agents.length)*100);
+      return `<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <div style="width:200px;font-size:0.78rem;font-weight:600;color:var(--gray-700);flex-shrink:0">${b.label}</div>
+        <div style="flex:1;background:var(--gray-100);border-radius:99px;height:10px;overflow:hidden">
+          <div style="width:${pct}%;background:${pct>=80?'#16A34A':pct>=50?'#D97706':'#EF4444'};height:100%;border-radius:99px;transition:width 0.4s"></div>
+        </div>
+        <div style="width:70px;font-size:0.78rem;font-weight:700;color:var(--gray-700);text-align:right">${done}/${agents.length} (${pct}%)</div>
+      </div>`;
+    }).join('');
+  } else if (taskEl) {
+    taskEl.innerHTML = '<p style="color:var(--gray-400);font-size:0.82rem">No agents yet.</p>';
+  }
+
+  // ── Table ──
+  const tbody = document.getElementById('checklistTableBody');
+  if (!tbody) return;
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="15" style="padding:32px;text-align:center;color:var(--gray-400)">No agents found.</td></tr>';
+    return;
+  }
+  const colors = ['#166534','#C9A227','#059669','#8B5CF6','#F97316','#14B8A6'];
+  tbody.innerHTML = filtered.map(a => {
+    const cl = getCl(a);
+    const done = CL_BOOL.filter(b => cl[b.key]).length;
+    const pct = Math.round((done/CL_BOOL.length)*100);
+    const pctColor = pct >= 80 ? '#16A34A' : pct >= 50 ? '#D97706' : '#EF4444';
+    const initials = a.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    const c = colors[a.name.charCodeAt(0) % colors.length];
+    const boolCells = CL_BOOL.map(b => {
+      const checked = cl[b.key] ? true : false;
+      return `<td style="padding:8px;text-align:center">
+        <input type="checkbox" ${checked?'checked':''} onchange="toggleCl('${a.id}','${b.key}')"
+          style="width:18px;height:18px;accent-color:#16A34A;cursor:pointer">
+      </td>`;
+    }).join('');
+    const numCells = CL_NUM.map(n => {
+      const val = parseInt(cl[n.key]) || 0;
+      return `<td style="padding:8px;text-align:center">
+        <input type="number" value="${val}" min="0"
+          onchange="updateClCount('${a.id}','${n.key}',this.value)"
+          style="width:54px;padding:4px 6px;border:1.5px solid var(--gray-200);border-radius:7px;text-align:center;font-size:0.82rem;font-weight:700;color:${n.color};font-family:inherit">
+      </td>`;
+    }).join('');
+    return `<tr style="border-bottom:1px solid var(--gray-100)">
+      <td style="padding:10px 12px;position:sticky;left:0;background:#fff;z-index:1">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:28px;height:28px;border-radius:50%;background:${c}22;color:${c};display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:800;flex-shrink:0">${initials}</div>
+          <div>
+            <div style="font-weight:700;font-size:0.83rem;color:var(--gray-900);white-space:nowrap">${a.name}</div>
+            <div style="font-size:0.68rem;color:var(--gray-400)">${a.position||'—'}</div>
+          </div>
+        </div>
+      </td>
+      <td style="padding:10px 8px;white-space:nowrap;font-size:0.78rem;color:var(--gray-600)">${a.endorsedDmd||'—'}</td>
+      ${boolCells}
+      ${numCells}
+      <td style="padding:10px 8px;text-align:center">
+        <div style="font-size:0.82rem;font-weight:800;color:${pctColor}">${pct}%</div>
+        <div style="width:60px;background:var(--gray-100);border-radius:99px;height:5px;margin:3px auto 0;overflow:hidden">
+          <div style="width:${pct}%;background:${pctColor};height:100%;border-radius:99px"></div>
+        </div>
+        <div style="font-size:0.65rem;color:var(--gray-400);margin-top:2px">${done}/${CL_BOOL.length}</div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function toggleCl(agentId, field) {
+  const a = applicants.find(x => x.id === agentId);
+  if (!a) return;
+  if (!a.checklist) a.checklist = {};
+  a.checklist[field] = !a.checklist[field];
+  save();
+  // Refresh summary cards and task progress without full re-render (for performance)
+  renderChecklist();
+}
+
+function updateClCount(agentId, field, val) {
+  const a = applicants.find(x => x.id === agentId);
+  if (!a) return;
+  if (!a.checklist) a.checklist = {};
+  a.checklist[field] = Math.max(0, parseInt(val) || 0);
+  save();
+}
+
+function exportChecklist() {
+  const agents = clAgents();
+  if (!agents.length) { toast('No agents to export.', 'warning'); return; }
+  const headers = ['Name','Position','DMD/MM','Status',
+    'Care Training','Product Knowledge Exam','Revalida','Culture Setting',
+    'Systems Training','Practicum-Lead Gen','Salesmanship','Revalida w/ Objections',
+    'Leads','Presentations','Closed w/ Assistance','Closed Solo','% Complete'];
+  const rows = agents.map(a => {
+    const cl = getCl(a);
+    const done = CL_BOOL.filter(b => cl[b.key]).length;
+    const pct = Math.round((done/CL_BOOL.length)*100);
+    return [
+      `"${a.name}"`, `"${a.position||''}"`, `"${a.endorsedDmd||''}"`, `"${a.status||''}"`,
+      cl.care_training?'Yes':'No', cl.prod_knowledge?'Yes':'No',
+      cl.revalida?'Yes':'No', cl.culture_setting?'Yes':'No',
+      cl.systems_training?'Yes':'No', cl.practicum_lead_gen?'Yes':'No',
+      cl.salesmanship?'Yes':'No', cl.revalida_obj?'Yes':'No',
+      parseInt(cl.leads_count)||0, parseInt(cl.presentations)||0,
+      parseInt(cl.closed_assist)||0, parseInt(cl.closed_solo)||0,
+      pct+'%'
+    ].join(',');
+  });
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `agent_checklist_${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+  toast('✅ Checklist exported!', 'success');
 }
 
 // ─── LEADERS MANAGEMENT ───────────────────────────────────────────
