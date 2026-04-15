@@ -1148,7 +1148,7 @@
             <option value="contracted_no_subsidy">Contracted — WITHOUT Subsidy (Current + Projected)</option>
             <option value="contracted_tbd">Contracted — With/Without Subsidy &amp; Not Yet Contracted (Current + Projected)</option>
           </select>
-          <div style="font-size:0.72rem;color:var(--gray-400);margin-top:4px">Current = all contracted options · Back End = WITH Subsidy only · Projected = all contracted options</div>
+          <div style="font-size:0.72rem;color:var(--gray-400);margin-top:4px">Current = all contracted options · Back End = WITH Subsidy only · Projected = Current + Back End</div>
         </div>
         <!-- Is New Agent badge -->
         <div class="form-group" style="align-items:center;flex-direction:row;gap:12px">
@@ -2103,7 +2103,7 @@
             <option value="contracted_no_subsidy">Contracted — WITHOUT Subsidy (Current + Projected)</option>
             <option value="contracted_tbd">Contracted — With/Without Subsidy &amp; Not Yet Contracted (Current + Projected)</option>
           </select>
-          <div style="font-size:0.72rem;color:var(--gray-400);margin-top:4px">Current = all contracted options · Back End = WITH Subsidy only · Projected = all contracted options</div>
+          <div style="font-size:0.72rem;color:var(--gray-400);margin-top:4px">Current = all contracted options · Back End = WITH Subsidy only · Projected = Current + Back End</div>
         </div>
         <!-- Is New Agent -->
         <div class="form-group full" style="align-items:center;flex-direction:row;gap:12px">
@@ -2606,16 +2606,16 @@ function renderDashboard() {
 
   // Agent sub-metrics (from contractedStatus field)
   const allLive = liveApps();
-  // CURRENT = all 3 contracted options count as Current
+  // DMDs (4) + MM (1) = 5 fixed leaders always counted
+  const DMD_MM_COUNT = 5; // Dexter, Jeffrey, Brian, Joan, Nelvin
+  // CURRENT = all 3 contracted options + DMD/MM leaders
   const totalCurrent = allLive.filter(a =>
     ['contracted_with_subsidy','contracted_no_subsidy','contracted_tbd'].includes(a.contractedStatus)
-  ).length;
-  // BACK END = contracted WITH subsidy only (option 1)
-  const totalBackEnd = allLive.filter(a => a.contractedStatus === 'contracted_with_subsidy').length;
-  // PROJECTED = all 3 contracted options count as Projected (same as Current)
-  const totalProjected = allLive.filter(a =>
-    ['contracted_with_subsidy','contracted_no_subsidy','contracted_tbd'].includes(a.contractedStatus)
-  ).length;
+  ).length + DMD_MM_COUNT;
+  // BACK END = contracted WITH subsidy only + DMD/MM leaders (all have subsidy)
+  const totalBackEnd = allLive.filter(a => a.contractedStatus === 'contracted_with_subsidy').length + DMD_MM_COUNT;
+  // PROJECTED = Current + Back End combined
+  const totalProjected = totalCurrent + totalBackEnd;
 
   // Read live values from Org Chart DOM (baseline static staff + dynamic applicants)
   const orgVal = id => document.getElementById(id)?.textContent?.trim() || '—';
@@ -2843,7 +2843,7 @@ function agentCard(current, backEnd, projected) {
       <div style="flex:1;min-width:80px;background:#F0FDF4;border-radius:8px;padding:7px 10px;border:1px solid #DCFCE7">
         <div style="font-size:0.65rem;font-weight:700;color:#15803D;text-transform:uppercase;letter-spacing:0.05em">Current</div>
         <div style="font-size:1.1rem;font-weight:800;color:#166534;line-height:1.2">${current}</div>
-        <div style="font-size:0.6rem;color:#6B7280">All contracted</div>
+        <div style="font-size:0.6rem;color:#6B7280">All contracted + DMD/MM</div>
       </div>
       <div style="flex:1;min-width:80px;background:#F0FDF4;border-radius:8px;padding:7px 10px;border:1px solid #DCFCE7">
         <div style="font-size:0.65rem;font-weight:700;color:#15803D;text-transform:uppercase;letter-spacing:0.05em">Back End</div>
@@ -2853,7 +2853,7 @@ function agentCard(current, backEnd, projected) {
       <div style="flex:1;min-width:80px;background:#F0FDF4;border-radius:8px;padding:7px 10px;border:1px solid #DCFCE7">
         <div style="font-size:0.65rem;font-weight:700;color:#15803D;text-transform:uppercase;letter-spacing:0.05em">Projected</div>
         <div style="font-size:1.1rem;font-weight:800;color:#166534;line-height:1.2">${projected}</div>
-        <div style="font-size:0.6rem;color:#6B7280">Current + SOM/Training (not contracted)</div>
+        <div style="font-size:0.6rem;color:#6B7280">Current + Back End combined</div>
       </div>
     </div>
     <div style="position:absolute;bottom:8px;right:12px;font-size:0.65rem;color:var(--gray-400);font-weight:500;letter-spacing:0.02em">View details →</div>
@@ -4303,9 +4303,9 @@ function saveOrgData() {
   localStorage.setItem(ORG_KEY, clone.innerHTML);
 }
 
-// ─── AUTO-ADD ENDORSED AGENTS TO ORG CHART ────────────────────────
+// ─── AUTO-ADD AGENTS TO ORG CHART (SOM, CARE, MCL, ENDORSED) ────────────────
 function autoAddToOrgChart(applicant) {
-  if (!applicant || applicant.status !== 'endorsed' || !applicant.endorsedDmd) return;
+  if (!applicant || !DMD_REQUIRED_STATUSES.includes(applicant.status) || !applicant.endorsedDmd) return;
   const dmdEntry = DMD_LIST.find(d => d.name === applicant.endorsedDmd);
   if (!dmdEntry) return;
   const teamSection = document.getElementById(dmdEntry.teamId);
@@ -4314,13 +4314,12 @@ function autoAddToOrgChart(applicant) {
   // Check if already in org chart by applicant ID
   if (teamSection.querySelector(`[data-applicant-id="${applicant.id}"]`)) return;
 
-  // Find the MO group (last org-team-group that has lbl-mo label, or the first group for Nelvin who has MO only)
+  // Find the MO group (last org-team-group that has lbl-mo label, or fallback to last group)
   const groups = teamSection.querySelectorAll('.org-team-group');
   let targetGroup = null;
   groups.forEach(function(g) {
     if (g.querySelector('.lbl-mo')) targetGroup = g;
   });
-  // Fallback: use last group
   if (!targetGroup && groups.length > 0) targetGroup = groups[groups.length - 1];
   if (!targetGroup) return;
 
@@ -4328,12 +4327,17 @@ function autoAddToOrgChart(applicant) {
   const firstVacant = targetGroup.querySelector('.org-person.vacant');
   const initials = applicant.name.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
   const role = dmdEntry.role === 'MM' ? 'MO – International' : 'MO – ' + (applicant.project || 'Team');
+
+  // Badge: NEW (green) if isNewAgent, otherwise show stage label
+  const stageLabels = { som_interview: 'SOM', care_training: 'CARE', mcl_training: 'MCL', endorsed: 'MO', cancelled: 'CNCL' };
+  const stageLabel = stageLabels[applicant.status] || 'MO';
+  const newBadge = applicant.isNewAgent
+    ? '<span class="org-person-badge badge-mo-t" style="background:#DCFCE7;color:#15803D;font-weight:800">NEW</span>'
+    : '<span class="org-person-badge badge-mo-t">' + stageLabel + '</span>';
+
   const newPerson = document.createElement('div');
   newPerson.className = 'org-person mo recruited';
   newPerson.setAttribute('data-applicant-id', applicant.id);
-  const newBadge = applicant.isNewAgent
-    ? '<span class="org-person-badge badge-mo-t" style="background:#DCFCE7;color:#15803D">NEW</span>'
-    : '<span class="org-person-badge badge-mo-t">MO</span>';
   newPerson.innerHTML = '<div class="org-person-avatar">' + initials + '</div>'
     + '<div class="org-person-info">'
     + '<div class="org-person-name">' + applicant.name + '</div>'
@@ -4353,10 +4357,12 @@ function autoAddToOrgChart(applicant) {
   saveOrgData();
 }
 
-// Sync all currently endorsed applicants to org chart (run on page load)
+// Sync all pipeline applicants (SOM, CARE, MCL, Endorsed) to org chart on page load
 function syncEndorsedToOrgChart() {
-  const endorsed = applicants.filter(function(a) { return !a.archived && a.status === 'endorsed' && a.endorsedDmd; });
-  endorsed.forEach(function(a) { autoAddToOrgChart(a); });
+  const toSync = applicants.filter(function(a) {
+    return !a.archived && DMD_REQUIRED_STATUSES.includes(a.status) && a.endorsedDmd;
+  });
+  toSync.forEach(function(a) { autoAddToOrgChart(a); });
 }
 
 function startOrgEdit() {
