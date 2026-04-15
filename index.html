@@ -4820,7 +4820,37 @@ function autoAddToOrgChart(applicant) {
   if (!applicant || !DMD_REQUIRED_STATUSES.includes(applicant.status) || !applicant.endorsedDmd) return;
   const dmdEntry = DMD_LIST.find(d => d.name === applicant.endorsedDmd);
   if (!dmdEntry) return;
-  const teamSection = document.getElementById(dmdEntry.teamId);
+
+  // Find existing team section, or create one dynamically for new leaders
+  let teamSection = document.getElementById(dmdEntry.teamId);
+  if (!teamSection) {
+    const orgTree = document.getElementById('orgTree');
+    if (!orgTree) return;
+    const dmdGrid = orgTree.querySelector('.org-dmd-grid') || orgTree;
+    const areaIcons = {'South Ops':'🌏','North Ops':'🌿','Metro Manila Ops':'🏙️','International Ops':'✈️'};
+    const icon = areaIcons[dmdEntry.area] || '📍';
+    const roleFull = dmdEntry.role === 'MM' ? 'Marketing Manager' : 'Deputy Marketing Director';
+    const col = document.createElement('div');
+    col.className = 'org-dmd-col';
+    col.innerHTML = '<div class="org-dmd-card" style="background:linear-gradient(135deg,' + dmdEntry.color + 'ee,' + dmdEntry.color + '99)" onclick="orgDmdClick(event,\'' + dmdEntry.teamId + '\')">'
+      + '<div class="org-dmd-area" data-org-edit="dmd-' + dmdEntry.teamId + '-area">' + icon + ' ' + dmdEntry.area + '</div>'
+      + '<div class="org-dmd-name" data-org-edit="dmd-' + dmdEntry.teamId + '-name">' + dmdEntry.name.toUpperCase() + '</div>'
+      + '<div class="org-dmd-role" data-org-edit="dmd-' + dmdEntry.teamId + '-role">' + roleFull + '</div>'
+      + '<div class="org-dmd-stats" data-dmd-stats="' + dmdEntry.teamId + '">'
+      + '<div class="org-dmd-stat"><div class="org-dmd-stat-num" style="color:#86EFAC" data-stat="filled">0</div><div class="org-dmd-stat-lbl">Filled</div></div>'
+      + '<div class="org-dmd-stat"><div class="org-dmd-stat-num" data-stat="target">10</div><div class="org-dmd-stat-lbl">Target</div></div>'
+      + '<div class="org-dmd-stat"><div class="org-dmd-stat-num" style="color:#FCA5A5" data-stat="variance">-10</div><div class="org-dmd-stat-lbl">Variance</div></div>'
+      + '</div>'
+      + '<div class="org-expand-hint" id="hint-' + dmdEntry.teamId + '">▼ Tap to see team</div>'
+      + '</div>'
+      + '<div class="org-connector-v2"></div>'
+      + '<div class="org-team-section" id="' + dmdEntry.teamId + '">'
+      + '<div class="org-team-grid"><div class="org-team-group">'
+      + '<div class="org-grp-label lbl-mo">MO</div>'
+      + '</div></div></div>';
+    dmdGrid.appendChild(col);
+    teamSection = document.getElementById(dmdEntry.teamId);
+  }
   if (!teamSection) return;
 
   // Check if already in org chart by applicant ID
