@@ -914,6 +914,10 @@
   </div>
 
   <div class="nav-section-label">Manage</div>
+  <div class="nav-item" onclick="showPage('leaders', this);renderLeaders();closeSidebar()">
+    <span class="nav-icon">★</span> Leaders
+    <span class="nav-badge" id="navBadgeLeaders" style="background:var(--primary)">0</span>
+  </div>
   <div class="nav-item" onclick="showPage('projects', this);closeSidebar()">
     <span class="nav-icon">◉</span> Projects
     <span class="nav-badge" id="navBadgeUrgent" style="background:#EF4444">!</span>
@@ -1132,11 +1136,6 @@
           <label>DMD / MM (Leader) <span class="req">*</span></label>
           <select id="f_endorsed_dmd">
             <option value="">-- Select DMD/MM --</option>
-            <option value="Dexter Soriano">Dexter Soriano – South Ops (DMD)</option>
-            <option value="Jeffrey Aquino">Jeffrey Aquino – South Ops (DMD)</option>
-            <option value="Brian Anthony Esguerra">Brian Anthony Esguerra – North Ops (DMD)</option>
-            <option value="Joan Marie Crizza Esguerra">Joan Marie Crizza Esguerra – Metro Manila Ops (DMD)</option>
-            <option value="Nelvin Joseph Adriatico">Nelvin Joseph Adriatico – International Ops (MM)</option>
           </select>
         </div>
         <!-- Contracted Status — shown for SOM Interview, CARE/MCL Training, Endorsed -->
@@ -1912,11 +1911,6 @@
     <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
       <select class="filter-sel" id="endorsedDmdFilter" onchange="renderEndorsedTable()" style="min-width:220px">
         <option value="">All DMD / MM</option>
-        <option value="Dexter Soriano">Dexter Soriano – South Ops (DMD)</option>
-        <option value="Jeffrey Aquino">Jeffrey Aquino – South Ops (DMD)</option>
-        <option value="Brian Anthony Esguerra">Brian Anthony Esguerra – North Ops (DMD)</option>
-        <option value="Joan Marie Crizza Esguerra">Joan Marie Crizza Esguerra – Metro Manila Ops (DMD)</option>
-        <option value="Nelvin Joseph Adriatico">Nelvin Joseph Adriatico – International Ops (MM)</option>
       </select>
       <div class="search-box" style="flex:1;min-width:180px"><span>🔍</span><input type="text" id="endorsedSearch" placeholder="Search endorsed applicants…" oninput="renderEndorsedTable()"/></div>
       <span class="results-count" id="endorsedCount">0 endorsed</span>
@@ -2033,6 +2027,81 @@
     </div>
   </div>
 
+  <!-- ── LEADERS ── -->
+  <div id="page-leaders" class="page">
+    <div class="page-header">
+      <div class="page-title">Leaders</div>
+      <div class="page-subtitle">Manage DMD/MM leaders — each leader counts in Total Agents summary</div>
+    </div>
+
+    <!-- Add Leader Form -->
+    <div class="table-card" style="margin-bottom:24px;padding:22px 24px">
+      <div style="font-size:0.95rem;font-weight:800;color:var(--primary);margin-bottom:18px;display:flex;align-items:center;gap:8px">
+        ➕ Add / Edit Leader
+      </div>
+      <input type="hidden" id="l_edit_id">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin-bottom:16px">
+        <div class="form-group" style="margin:0">
+          <label style="font-size:0.78rem;font-weight:700;color:var(--gray-700);display:block;margin-bottom:5px">Full Name <span class="req">*</span></label>
+          <input type="text" id="l_name" placeholder="Leader's full name" style="width:100%;padding:9px 12px;border:1.5px solid var(--gray-200);border-radius:9px;font-size:0.85rem;font-family:inherit;box-sizing:border-box">
+        </div>
+        <div class="form-group" style="margin:0">
+          <label style="font-size:0.78rem;font-weight:700;color:var(--gray-700);display:block;margin-bottom:5px">Position <span class="req">*</span></label>
+          <select id="l_position" style="width:100%;padding:9px 12px;border:1.5px solid var(--gray-200);border-radius:9px;font-size:0.85rem;font-family:inherit;background:#fff;box-sizing:border-box">
+            <option value="">-- Select --</option>
+            <option value="DMD">DMD</option>
+            <option value="MM">MM</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label style="font-size:0.78rem;font-weight:700;color:var(--gray-700);display:block;margin-bottom:5px">Operations Area <span class="req">*</span></label>
+          <select id="l_area" style="width:100%;padding:9px 12px;border:1.5px solid var(--gray-200);border-radius:9px;font-size:0.85rem;font-family:inherit;background:#fff;box-sizing:border-box">
+            <option value="">-- Select --</option>
+            <option value="South Ops">South Operations</option>
+            <option value="North Ops">North Operations</option>
+            <option value="Metro Manila Ops">Metro Manila Operations</option>
+            <option value="International Ops">International Operations</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label style="font-size:0.78rem;font-weight:700;color:var(--gray-700);display:block;margin-bottom:5px">Target (Headcount)</label>
+          <input type="number" id="l_target" min="0" placeholder="e.g. 20" style="width:100%;padding:9px 12px;border:1.5px solid var(--gray-200);border-radius:9px;font-size:0.85rem;font-family:inherit;box-sizing:border-box">
+        </div>
+        <div class="form-group" style="margin:0">
+          <label style="font-size:0.78rem;font-weight:700;color:var(--gray-700);display:block;margin-bottom:5px">Number of Teams</label>
+          <input type="number" id="l_num_teams" min="1" placeholder="e.g. 2" style="width:100%;padding:9px 12px;border:1.5px solid var(--gray-200);border-radius:9px;font-size:0.85rem;font-family:inherit;box-sizing:border-box">
+        </div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button onclick="saveLeader()" style="background:linear-gradient(135deg,#166534,#16A34A);color:#fff;border:none;border-radius:9px;padding:10px 22px;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:inherit">💾 Save Leader</button>
+        <button onclick="cancelLeaderEdit()" id="l_cancel_btn" style="display:none;background:var(--gray-100);color:var(--gray-700);border:none;border-radius:9px;padding:10px 18px;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:inherit">✕ Cancel</button>
+      </div>
+    </div>
+
+    <!-- Leaders Table -->
+    <div class="table-card">
+      <div id="leadersTableWrap" style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:0.85rem">
+          <thead>
+            <tr style="background:var(--gray-50);border-bottom:2px solid var(--gray-200)">
+              <th style="padding:10px 14px;text-align:left;font-size:0.72rem;font-weight:800;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em">Name</th>
+              <th style="padding:10px 14px;text-align:left;font-size:0.72rem;font-weight:800;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em">Position</th>
+              <th style="padding:10px 14px;text-align:left;font-size:0.72rem;font-weight:800;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em">Area</th>
+              <th style="padding:10px 14px;text-align:center;font-size:0.72rem;font-weight:800;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em">Filled</th>
+              <th style="padding:10px 14px;text-align:center;font-size:0.72rem;font-weight:800;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em">Target</th>
+              <th style="padding:10px 14px;text-align:center;font-size:0.72rem;font-weight:800;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em">Variance</th>
+              <th style="padding:10px 14px;text-align:center;font-size:0.72rem;font-weight:800;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em">Teams</th>
+              <th style="padding:10px 14px;text-align:center;font-size:0.72rem;font-weight:800;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="leadersTableBody">
+            <tr><td colspan="8" style="padding:32px;text-align:center;color:var(--gray-400)">No leaders added yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
 </main>
 </div>
 
@@ -2087,11 +2156,6 @@
           <label>DMD / MM (Leader) <span class="req">*</span></label>
           <select id="m_endorsed_dmd">
             <option value="">-- Select DMD/MM --</option>
-            <option value="Dexter Soriano">Dexter Soriano – South Ops (DMD)</option>
-            <option value="Jeffrey Aquino">Jeffrey Aquino – South Ops (DMD)</option>
-            <option value="Brian Anthony Esguerra">Brian Anthony Esguerra – North Ops (DMD)</option>
-            <option value="Joan Marie Crizza Esguerra">Joan Marie Crizza Esguerra – Metro Manila Ops (DMD)</option>
-            <option value="Nelvin Joseph Adriatico">Nelvin Joseph Adriatico – International Ops (MM)</option>
           </select>
         </div>
         <!-- Contracted Status -->
@@ -2429,13 +2493,56 @@ const STATUS_LABELS = {
   endorsed: 'Endorsed to Team'
 };
 
-const DMD_LIST = [
-  { name: 'Dexter Soriano',              area: 'South Ops',          color: '#16A34A', teamId: 'team-dexter',  role: 'DMD' },
-  { name: 'Jeffrey Aquino',              area: 'South Ops',          color: '#15803D', teamId: 'team-jeffrey', role: 'DMD' },
-  { name: 'Brian Anthony Esguerra',      area: 'North Ops',          color: '#1E8449', teamId: 'team-brian',   role: 'DMD' },
-  { name: 'Joan Marie Crizza Esguerra',  area: 'Metro Manila Ops',   color: '#8E44AD', teamId: 'team-joan',    role: 'DMD' },
-  { name: 'Nelvin Joseph Adriatico',     area: 'International Ops',  color: '#059669', teamId: 'team-nelvin',  role: 'MM'  },
-];
+// ─── LEADERS (dynamic, stored in localStorage) ────────────────────
+const LEADERS_KEY = 'cp_leaders';
+const LEADER_COLORS = ['#16A34A','#15803D','#1E8449','#8E44AD','#059669','#C9A227','#0E7490','#7C3AED','#EA580C','#0891B2'];
+let leaders = [];
+function loadLeaders() {
+  try { leaders = JSON.parse(localStorage.getItem(LEADERS_KEY) || '[]'); } catch(e) { leaders = []; }
+  // Seed Malvin Landicho if no leaders exist yet
+  if (leaders.length === 0) {
+    leaders = [{ id: 'ldr-001', name: 'Malvin Landicho', position: 'DMD', area: 'South Ops', target: 0, numTeams: 1, color: '#16A34A' }];
+    saveLeaders();
+  }
+  syncDmdList();
+}
+function saveLeaders() {
+  localStorage.setItem(LEADERS_KEY, JSON.stringify(leaders));
+  syncDmdList();
+}
+// DMD_LIST is now a mutable array synced from leaders
+let DMD_LIST = [];
+function syncDmdList() {
+  DMD_LIST.length = 0;
+  leaders.forEach(l => {
+    DMD_LIST.push({
+      name: l.name,
+      area: l.area,
+      color: l.color || '#16A34A',
+      teamId: 'team-' + (l.id || l.name.toLowerCase().replace(/\s+/g,'-')),
+      role: l.position || 'DMD'
+    });
+  });
+}
+// Build <option> HTML for DMD dropdowns from leaders
+function buildDmdOptions(selectedVal) {
+  if (!leaders.length) return '<option value="">-- No leaders yet --</option>';
+  return '<option value="">-- Select DMD/MM --</option>' +
+    leaders.map(l => `<option value="${l.name}" ${selectedVal===l.name?'selected':''}>${l.name} – ${l.area} (${l.position})</option>`).join('');
+}
+// Refresh all DMD dropdowns on the page
+function refreshDmdDropdowns(selectedVal) {
+  const opts = buildDmdOptions(selectedVal||'');
+  ['f_endorsed_dmd','m_endorsed_dmd'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = opts;
+  });
+  const filterEl = document.getElementById('endorsedDmdFilter');
+  if (filterEl) {
+    filterEl.innerHTML = '<option value="">All DMD / MM</option>' +
+      leaders.map(l => `<option value="${l.name}">${l.name} – ${l.area} (${l.position})</option>`).join('');
+  }
+}
 
 const PIPELINE_ORDER = ['send_appointments','initial_interview','mcl_interview','som_interview','care_training','mcl_training','cancelled','endorsed'];
 const PIPELINE_COLORS = {
@@ -2549,6 +2656,7 @@ function showPage(id, el) {
   if (id === 'applicants') { renderTable(); populatePosFilter(); if (currentView === 'board') renderKanban(); }
   if (id === 'headcount') renderHeadcount();
   if (id === 'projects') renderProjects();
+  if (id === 'leaders') renderLeaders();
   if (id === 'endorsed') renderEndorsedTable();
   if (id === 'cancelled') renderFilteredTable('cancelled','cancelSearch','cancelTable');
   if (id === 'archived') renderArchivedTable();
@@ -2566,6 +2674,8 @@ function updateBadges() {
   if (calBadge) calBadge.textContent = live.filter(a => a.dateInterview||a.dateMCL||a.dateSOM||a.dateCARE||a.dateMCLTraining).length;
   const archBadge = document.getElementById('navBadgeArchived');
   if (archBadge) archBadge.textContent = applicants.filter(a=>a.archived).length;
+  const ldrBadge = document.getElementById('navBadgeLeaders');
+  if (ldrBadge) ldrBadge.textContent = leaders.length;
 }
 
 // ─── POSITION LIST ────────────────────────────────────────────────
@@ -2606,16 +2716,18 @@ function renderDashboard() {
 
   // Agent sub-metrics (from contractedStatus field)
   const allLive = liveApps();
-  // DMDs (4) + MM (1) = 5 fixed leaders always counted
-  const DMD_MM_COUNT = 5; // Dexter, Jeffrey, Brian, Joan, Nelvin
-  // CURRENT = all 3 contracted options + DMD/MM leaders
+  // Leaders count dynamically from localStorage
+  const leaderCount = leaders.length;
+  // CURRENT = all 3 contracted options + leaders
   const totalCurrent = allLive.filter(a =>
     ['contracted_with_subsidy','contracted_no_subsidy','contracted_tbd'].includes(a.contractedStatus)
-  ).length + DMD_MM_COUNT;
-  // BACK END = contracted WITH subsidy only + DMD/MM leaders (all have subsidy)
-  const totalBackEnd = allLive.filter(a => a.contractedStatus === 'contracted_with_subsidy').length + DMD_MM_COUNT;
-  // PROJECTED = Current + Back End combined
-  const totalProjected = totalCurrent + totalBackEnd;
+  ).length + leaderCount;
+  // BACK END = contracted WITH subsidy only + leaders (all leaders have subsidy)
+  const totalBackEnd = allLive.filter(a => a.contractedStatus === 'contracted_with_subsidy').length + leaderCount;
+  // PROJECTED = contracted WITHOUT subsidy + TBD only (Back End excluded to avoid double count) + leaders
+  const totalProjected = allLive.filter(a =>
+    ['contracted_no_subsidy','contracted_tbd'].includes(a.contractedStatus)
+  ).length + leaderCount;
 
   // Read live values from Org Chart DOM (baseline static staff + dynamic applicants)
   const orgVal = id => document.getElementById(id)?.textContent?.trim() || '—';
@@ -2843,7 +2955,7 @@ function agentCard(current, backEnd, projected) {
       <div style="flex:1;min-width:80px;background:#F0FDF4;border-radius:8px;padding:7px 10px;border:1px solid #DCFCE7">
         <div style="font-size:0.65rem;font-weight:700;color:#15803D;text-transform:uppercase;letter-spacing:0.05em">Current</div>
         <div style="font-size:1.1rem;font-weight:800;color:#166534;line-height:1.2">${current}</div>
-        <div style="font-size:0.6rem;color:#6B7280">All contracted + DMD/MM</div>
+        <div style="font-size:0.6rem;color:#6B7280">All contracted + leaders</div>
       </div>
       <div style="flex:1;min-width:80px;background:#F0FDF4;border-radius:8px;padding:7px 10px;border:1px solid #DCFCE7">
         <div style="font-size:0.65rem;font-weight:700;color:#15803D;text-transform:uppercase;letter-spacing:0.05em">Back End</div>
@@ -2853,7 +2965,7 @@ function agentCard(current, backEnd, projected) {
       <div style="flex:1;min-width:80px;background:#F0FDF4;border-radius:8px;padding:7px 10px;border:1px solid #DCFCE7">
         <div style="font-size:0.65rem;font-weight:700;color:#15803D;text-transform:uppercase;letter-spacing:0.05em">Projected</div>
         <div style="font-size:1.1rem;font-weight:800;color:#166534;line-height:1.2">${projected}</div>
-        <div style="font-size:0.6rem;color:#6B7280">Current + Back End combined</div>
+        <div style="font-size:0.6rem;color:#6B7280">No subsidy + TBD + leaders</div>
       </div>
     </div>
     <div style="position:absolute;bottom:8px;right:12px;font-size:0.65rem;color:var(--gray-400);font-weight:500;letter-spacing:0.02em">View details →</div>
@@ -3685,11 +3797,121 @@ function toggleTeam(id) {
   if (hint) hint.innerHTML = isOpen ? '▼ Tap to see team' : '▲ Tap to collapse';
 }
 
+// ─── LEADERS MANAGEMENT ───────────────────────────────────────────
+function renderLeaders() {
+  const tbody = document.getElementById('leadersTableBody');
+  if (!tbody) return;
+  const badge = document.getElementById('navBadgeLeaders');
+  if (badge) badge.textContent = leaders.length;
+  if (!leaders.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="padding:32px;text-align:center;color:var(--gray-400)">No leaders added yet.</td></tr>';
+    return;
+  }
+  const live = liveApps();
+  tbody.innerHTML = leaders.map(l => {
+    const filled = live.filter(a => a.endorsedDmd === l.name).length;
+    const target = parseInt(l.target) || 0;
+    const variance = filled - target;
+    const varColor = variance >= 0 ? '#15803D' : '#DC2626';
+    const varBg = variance >= 0 ? '#DCFCE7' : '#FEE2E2';
+    const areaColors = {'South Ops':'#16A34A','North Ops':'#1E8449','Metro Manila Ops':'#8E44AD','International Ops':'#059669'};
+    const aColor = areaColors[l.area] || '#64748B';
+    return `<tr style="border-bottom:1px solid var(--gray-100)">
+      <td style="padding:11px 14px">
+        <div style="font-weight:700;color:var(--gray-900)">${l.name}</div>
+      </td>
+      <td style="padding:11px 14px">
+        <span style="background:${l.color||'#16A34A'}22;color:${l.color||'#16A34A'};border:1px solid ${l.color||'#16A34A'}44;border-radius:6px;padding:2px 9px;font-size:0.72rem;font-weight:700">${l.position||'DMD'}</span>
+      </td>
+      <td style="padding:11px 14px">
+        <span style="background:${aColor}18;color:${aColor};border-radius:6px;padding:2px 9px;font-size:0.72rem;font-weight:600">${l.area}</span>
+      </td>
+      <td style="padding:11px 14px;text-align:center;font-weight:700;color:var(--gray-800)">${filled}</td>
+      <td style="padding:11px 14px;text-align:center;font-weight:700;color:var(--gray-800)">${target || '—'}</td>
+      <td style="padding:11px 14px;text-align:center">
+        <span style="background:${varBg};color:${varColor};border-radius:6px;padding:3px 10px;font-size:0.78rem;font-weight:800">${variance >= 0 ? '+' : ''}${variance}</span>
+      </td>
+      <td style="padding:11px 14px;text-align:center;font-weight:600;color:var(--gray-700)">${l.numTeams || '—'}</td>
+      <td style="padding:11px 14px;text-align:center">
+        <button onclick="editLeader('${l.id}')" style="background:#EFF6FF;color:#1D4ED8;border:none;border-radius:6px;padding:5px 11px;font-size:0.75rem;font-weight:700;cursor:pointer;margin-right:5px">✏️ Edit</button>
+        <button onclick="deleteLeader('${l.id}')" style="background:#FEE2E2;color:#DC2626;border:none;border-radius:6px;padding:5px 11px;font-size:0.75rem;font-weight:700;cursor:pointer">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function saveLeader() {
+  const editId = document.getElementById('l_edit_id').value.trim();
+  const name = document.getElementById('l_name').value.trim();
+  const position = document.getElementById('l_position').value;
+  const area = document.getElementById('l_area').value;
+  const target = parseInt(document.getElementById('l_target').value) || 0;
+  const numTeams = parseInt(document.getElementById('l_num_teams').value) || 1;
+  if (!name) { toast('Please enter the leader\'s name.', 'error'); return; }
+  if (!position) { toast('Please select a position (DMD/MM).', 'error'); return; }
+  if (!area) { toast('Please select an operations area.', 'error'); return; }
+  const colorIdx = (name.charCodeAt(0) + leaders.length) % LEADER_COLORS.length;
+  if (editId) {
+    const idx = leaders.findIndex(l => l.id === editId);
+    if (idx > -1) {
+      leaders[idx] = { ...leaders[idx], name, position, area, target, numTeams };
+    }
+  } else {
+    leaders.push({ id: 'ldr-' + Date.now(), name, position, area, target, numTeams, color: LEADER_COLORS[colorIdx] });
+  }
+  saveLeaders();
+  refreshDmdDropdowns();
+  renderDashboard();
+  cancelLeaderEdit();
+  renderLeaders();
+  const badgeEl = document.getElementById('navBadgeLeaders');
+  if (badgeEl) badgeEl.textContent = leaders.length;
+  toast(`✅ Leader "${name}" ${editId ? 'updated' : 'added'} successfully!`);
+}
+
+function editLeader(id) {
+  const l = leaders.find(x => x.id === id);
+  if (!l) return;
+  document.getElementById('l_edit_id').value = l.id;
+  document.getElementById('l_name').value = l.name;
+  document.getElementById('l_position').value = l.position || '';
+  document.getElementById('l_area').value = l.area || '';
+  document.getElementById('l_target').value = l.target || '';
+  document.getElementById('l_num_teams').value = l.numTeams || '';
+  document.getElementById('l_cancel_btn').style.display = 'inline-flex';
+  document.getElementById('l_name').focus();
+  document.getElementById('l_name').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function cancelLeaderEdit() {
+  document.getElementById('l_edit_id').value = '';
+  document.getElementById('l_name').value = '';
+  document.getElementById('l_position').value = '';
+  document.getElementById('l_area').value = '';
+  document.getElementById('l_target').value = '';
+  document.getElementById('l_num_teams').value = '';
+  document.getElementById('l_cancel_btn').style.display = 'none';
+}
+
+function deleteLeader(id) {
+  const l = leaders.find(x => x.id === id);
+  if (!l) return;
+  if (!confirm(`Delete leader "${l.name}"? This cannot be undone.`)) return;
+  leaders = leaders.filter(x => x.id !== id);
+  saveLeaders();
+  refreshDmdDropdowns();
+  renderDashboard();
+  renderLeaders();
+  toast(`Leader "${l.name}" removed.`, 'warning');
+}
+
 // ─── INIT ─────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   // Set today's date
   document.getElementById('headerDate').textContent = new Date().toLocaleDateString('en-PH', { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric' });
   document.getElementById('f_date').value = new Date().toISOString().slice(0,10);
+  loadLeaders();
+  refreshDmdDropdowns();
   updateBadges();
   updatePositionList();
   renderDashboard();
