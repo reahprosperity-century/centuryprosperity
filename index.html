@@ -883,7 +883,6 @@
       <span class="conn-dot" style="width:7px;height:7px;border-radius:50%;flex-shrink:0;"></span>
       <span class="conn-label" id="connLabel">Local</span>
     </button>
-    <button class="btn-add-header" onclick="openModal()">+ Add Applicant</button>
   </div>
 </header>
 
@@ -896,6 +895,11 @@
       <div style="font-size:0.82rem;font-weight:800;color:var(--gray-900);letter-spacing:-0.01em">Century Prosperity</div>
       <div style="font-size:0.65rem;color:var(--gray-400);font-weight:500">Recruitment System</div>
     </div>
+  </div>
+  <div style="padding:0 4px;margin-bottom:14px;margin-top:8px">
+    <button onclick="openModal()" style="width:100%;background:linear-gradient(135deg,#166534,#16A34A);color:#fff;border:none;border-radius:10px;padding:11px 16px;font-size:0.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 3px 12px rgba(22,101,52,0.3);transition:all 0.2s;font-family:inherit" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 5px 18px rgba(22,101,52,0.4)'" onmouseout="this.style.transform='';this.style.boxShadow='0 3px 12px rgba(22,101,52,0.3)'">
+      ＋ Add New Applicant
+    </button>
   </div>
   <div class="nav-section-label">Main</div>
   <div class="nav-item active" onclick="showPage('dashboard', this);closeSidebar()">
@@ -950,12 +954,6 @@
     <div class="page-header">
       <div class="page-title">Dashboard</div>
       <div class="page-subtitle">Overview of your recruitment pipeline — Century Prosperity</div>
-    </div>
-    <!-- Quick Add Button -->
-    <div style="margin-bottom:18px">
-      <button onclick="openModal()" style="background:linear-gradient(135deg,#166534,#16A34A);color:#fff;border:none;border-radius:10px;padding:11px 22px;font-size:0.88rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:0 3px 12px rgba(22,101,52,0.3);transition:all 0.2s;font-family:inherit" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 5px 18px rgba(22,101,52,0.4)'" onmouseout="this.style.transform='';this.style.boxShadow='0 3px 12px rgba(22,101,52,0.3)'">
-        + Add New Applicant
-      </button>
     </div>
     <div class="stats-grid" id="statsGrid"></div>
     <div class="charts-row">
@@ -1146,11 +1144,11 @@
           <label>Contracted Status <span class="req">*</span></label>
           <select id="f_contracted_status">
             <option value="">-- Select contracted status --</option>
-            <option value="contracted_with_subsidy">Contracted — WITH Subsidy (Current + Back End)</option>
-            <option value="contracted_no_subsidy">Contracted — WITHOUT Subsidy (Current only)</option>
-            <option value="not_contracted">Not Yet Contracted (counts toward Projected)</option>
+            <option value="contracted_with_subsidy">CONTRACTED — WITH SUBSIDY (Current + Back End + Projected)</option>
+            <option value="contracted_no_subsidy">Contracted — WITHOUT Subsidy (Current + Projected)</option>
+            <option value="contracted_tbd">Contracted — With/Without Subsidy &amp; Not Yet Contracted (Current + Projected)</option>
           </select>
-          <div style="font-size:0.72rem;color:var(--gray-400);margin-top:4px">Current = all contracted (w/ or w/o subsidy) · Back End = with subsidy only · Projected = Current + Back End + SOM/Training (not contracted)</div>
+          <div style="font-size:0.72rem;color:var(--gray-400);margin-top:4px">Current = all contracted options · Back End = WITH Subsidy only · Projected = all contracted options</div>
         </div>
         <!-- Is New Agent badge -->
         <div class="form-group" style="align-items:center;flex-direction:row;gap:12px">
@@ -2101,11 +2099,11 @@
           <label>Contracted Status <span class="req">*</span></label>
           <select id="m_contracted_status">
             <option value="">-- Select contracted status --</option>
-            <option value="contracted_with_subsidy">Contracted — WITH Subsidy (Current + Back End)</option>
-            <option value="contracted_no_subsidy">Contracted — WITHOUT Subsidy (Current only)</option>
-            <option value="not_contracted">Not Yet Contracted (counts toward Projected)</option>
+            <option value="contracted_with_subsidy">CONTRACTED — WITH SUBSIDY (Current + Back End + Projected)</option>
+            <option value="contracted_no_subsidy">Contracted — WITHOUT Subsidy (Current + Projected)</option>
+            <option value="contracted_tbd">Contracted — With/Without Subsidy &amp; Not Yet Contracted (Current + Projected)</option>
           </select>
-          <div style="font-size:0.72rem;color:var(--gray-400);margin-top:4px">Current = all contracted (w/ or w/o subsidy) · Back End = with subsidy only · Projected = Current + Back End + SOM/Training (not contracted)</div>
+          <div style="font-size:0.72rem;color:var(--gray-400);margin-top:4px">Current = all contracted options · Back End = WITH Subsidy only · Projected = all contracted options</div>
         </div>
         <!-- Is New Agent -->
         <div class="form-group full" style="align-items:center;flex-direction:row;gap:12px">
@@ -2608,21 +2606,15 @@ function renderDashboard() {
 
   // Agent sub-metrics (from contractedStatus field)
   const allLive = liveApps();
-  // CURRENT = all contracted (with OR without subsidy)
+  // CURRENT = all 3 contracted options count as Current
   const totalCurrent = allLive.filter(a =>
-    a.contractedStatus === 'contracted_with_subsidy' || a.contractedStatus === 'contracted_no_subsidy'
+    ['contracted_with_subsidy','contracted_no_subsidy','contracted_tbd'].includes(a.contractedStatus)
   ).length;
-  // BACK END = contracted WITH subsidy only
+  // BACK END = contracted WITH subsidy only (option 1)
   const totalBackEnd = allLive.filter(a => a.contractedStatus === 'contracted_with_subsidy').length;
-  // PROJECTED = Current (all contracted) + SOM/Training who are "Not Yet Contracted"
-  // Formula: Current + Back End + SOM/Training(not_contracted) = total projected pool
+  // PROJECTED = all 3 contracted options count as Projected (same as Current)
   const totalProjected = allLive.filter(a =>
-    a.contractedStatus === 'contracted_with_subsidy' ||
-    a.contractedStatus === 'contracted_no_subsidy' ||
-    (
-      ['som_interview','care_training','mcl_training'].includes(a.status) &&
-      (a.contractedStatus === 'not_contracted' || !a.contractedStatus)
-    )
+    ['contracted_with_subsidy','contracted_no_subsidy','contracted_tbd'].includes(a.contractedStatus)
   ).length;
 
   // Read live values from Org Chart DOM (baseline static staff + dynamic applicants)
@@ -2874,10 +2866,7 @@ function showAgentDetail() {
   const withSubsidy = endorsed.filter(a => a.hasSubsidy === true);
   const withoutSubsidy = endorsed.filter(a => !a.hasSubsidy);
   const projected = live.filter(a => ['endorsed','som_interview','care_training','mcl_training'].includes(a.status));
-  const inTraining = live.filter(a =>
-    ['som_interview','care_training','mcl_training'].includes(a.status) &&
-    (a.contractedStatus === 'not_contracted' || !a.contractedStatus)
-  );
+  const inTraining = live.filter(a => a.contractedStatus === 'contracted_tbd');
 
   const sectionHtml = (title, color, people) => {
     if (!people.length) return `<div style="padding:10px 20px 4px;font-size:0.74rem;font-weight:700;color:${color};text-transform:uppercase;letter-spacing:0.05em;border-top:1px solid var(--gray-100)">${title} (0)</div>`;
@@ -2908,7 +2897,7 @@ function showAgentDetail() {
   </div>`
   + sectionHtml('Current — With Subsidy (Back End)', '#15803D', withSubsidy)
   + sectionHtml('Current — No Subsidy', '#6B7280', withoutSubsidy)
-  + sectionHtml('SOM / Training — Not Yet Contracted (Projected)', '#F97316', inTraining);
+  + sectionHtml('Contracted — With/Without Subsidy TBD (Current + Projected)', '#F97316', inTraining);
 
   openDetailModal('Total Agents Breakdown', body);
 }
